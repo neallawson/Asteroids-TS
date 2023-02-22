@@ -1,0 +1,65 @@
+Creating a Typescript / PixiJS Project in VS Code
+(See https://www.youtube.com/watch?v=EpOPR03z4Vw series.)
+
+I. Setup the project with Typescript
+
+   1. mkdir ~/src/javascript/typescript/Asteroids-JS
+   2. Open folder in VS Code
+   3. Create the following folders in the Asteroids-JS folder:
+      ./public ./src ./src/classes ./src/interfaces
+
+   4. Create a tsconfig file. In the terminal type:
+      tsc --init
+
+   5. In tsconfig, make the following changes:
+   "rootDir": "./src",
+   "outDir": "./public",
+
+   Add the following line after the 'compilerOptions' block (add comma after the closing curly brace):
+   "include": ["src"]
+   This won't compile files outside of ./src
+
+   6. Can now run "tsc -w" to compile Typescript code in ./src and have it watched then output into ./public.
+
+   7. Setup the ES6 Module System. In tsconfig.json, make the following changes:
+   "target": "es6",  
+   "module": "es2015", 
+
+   Find the "<script>" tag in the index.html, and change:
+   <script src='app.js'></script>
+
+   to
+
+   <script type="module" src='app.js'></script>
+
+   In a class in its own file, you can export the class with the 'export' keyword:
+
+   export class Foo {
+   }
+
+   To use this class in another module, simply import it at the top with:
+
+   import {Foo} from './classes/Foo.js'
+
+   Do the same thing with Interfaces:
+
+   export interface hasAction {
+      act(): string;
+   }
+
+   And to use:
+
+   import {hasAction} from ./interfaces/hasAction.js
+
+
+II. Setup Pixi.JS
+
+
+
+
+
+....
+
+
+Install PixiJS:
+npm install pixi.js

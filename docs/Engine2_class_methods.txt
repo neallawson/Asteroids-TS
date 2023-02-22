@@ -1,0 +1,74 @@
+# 1) VectorShape is a class for two-dimensional shapes composed of a polygon.
+# 2) Worldport is a class that implements a World coordinate system.
+# 3) Viewport is a class that implements a Viewport coordinate system.
+# 4) Line is a 2-d line class with methods for testing intersection.
+# class VectorShape - A VectorShape is a 2-d vector item composed of world
+class VectorShape:
+    def print_points(self):
+    def print_trig_vals(self):
+    def __init__(self, p, viewport, num_rotate):
+    def calc_bounds(self):
+    def move(self, xvel, yvel):
+    def xthrust(self, thrust):
+    def ythrust(self, thrust):
+    def rotate_right(self):
+    def rotate_left(self):
+    def rotate_center(self):
+    def PointInShape(self, x, y):
+    def ShapeInShape(self, vs):
+# END class VectorShape
+# *		class Worldport -- Implement a 2d World coordinate system.
+# *		translating, scaling, rotating, and copying polygons defined
+class Worldport:
+    @classmethod
+    def toradians(cls, d):
+    @classmethod
+    def translatepoint(cls, p, tx, ty):
+    @classmethod
+    def translatepoly(cls, pts, tx, ty):
+    @classmethod
+    def scalepoly(cls, pts, sx, sy):
+    @classmethod
+    def rotatepoint(cls, p, angle):
+    @classmethod
+    def rotatepoly(cls, pts, angle):
+    @classmethod
+    def rotatepoint_fast(cls, p, cost, sint):
+    @classmethod
+    def rotatepoly_fast(cls, pts, cost, sint):
+    def __init__(self, xmin, xmax, ymin, ymax):
+    def resize_port(self, xmin, xmax, ymin, ymax):
+    def worldpoint_to_viewpoint(self, vp, worldp, viewp):
+    def worldpoly_to_viewpoly(self, vp, wpts, vpts):
+# END class Worldport
+# *		class Viewport -- Implement a 2d screen coordinate system.
+# *		translating, scaling, rotating, and copying polygons defined
+class Viewport:
+    @classmethod
+    def translatepoly(cls, pts, tx, ty):
+    @classmethod
+    def scalepoly(cls, pts, sx, sy):
+    @classmethod
+    def rotatepoly(cls, pts, angle):
+    @classmethod
+    def rotatepoly_fast(cls, pts, cost, sint):
+    def __init__(self, wp, xmin, xmax, ymin, ymax):
+    def calc_scalefactors(self):
+    def resize_worldport(self, xmin, xmax, ymin, ymax):
+    def set_aspect(self, asp):
+    def view_to_world(self, view_point, world_point):
+    def viewpoly_to_worldpoly(self, vpts, wpts):
+# END class Viewport
+class Point2d:
+    def __init__(self, x, y):
+# *		class Line -- Define a line as two endpoints.  Provide
+class Line:
+    def __init__(self, leftin, rightin):
+    def setleft(self, x, y):
+    def setright(self, x, y):
+    #    def draw(self, g):
+    def intersect(self, other, where):
+    def slow_intersect(self, other, where):
+        # @classmethod
+        # def round(cls, x):
+# END class Line

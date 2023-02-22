@@ -1,0 +1,21 @@
+#  *		Mover	--	a moving object class.
+class Mover:
+    def __init__(self, world_port, topology, x=0, y=0, xvel=0, yvel=0):
+    def handle_event(self, e):
+    def paint(self, g):
+    def die(self):
+    def start_round(self):
+    def tick(self):
+class VectorMover(Mover):
+    def __init__(self, view_port, x=0, y=0, xvelocity=0, yvelocity=0):
+    # Add the vector_shape after construction in the derived class.
+    def add_vector_shape(self, vector_shape):
+    def xthrust(self, thrust):
+    def ythrust(self, thrust):
+    def rotate_right(self):
+    def rotate_left(self):
+    def rotate_center(self):
+    # tick()	--	This method overrides Mover.tick() and subclasses 
+    # better defined as to what it does. Not sure it should move(dx, dy): limits what subclasses can do.
+    # overriding subclasses should call tick() below AT THE END of their tick() method.
+    def tick(self):
