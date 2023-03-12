@@ -1,0 +1,31 @@
+{
+  "name": "asteroids-ts",
+  "version": "1.0.0",
+  "description": "Typescript-PixiJS port of Neal Lawson's 1996 Java Asteroids game.",
+  "main": "app.js",
+  "type": "module",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jneallawson/Asteroids-TS.git"
+  },
+  "keywords": [
+    "asteroids"
+  ],
+  "author": "Neal Lawson",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/jneallawson/Asteroids-TS/issues"
+  },
+  "homepage": "https://github.com/jneallawson/Asteroids-TS#readme",
+  "devDependencies": {
+    "@types/node": "^18.14.1",
+    "pixi.js": "^7.1.2",
+    "typescript": "^4.9.5"
+  }
+}

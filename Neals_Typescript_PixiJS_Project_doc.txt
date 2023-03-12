@@ -1,3 +1,7 @@
+If node is not on the Ubuntu system, install it this way. First remove any previous versions os node.
+https://github.com/nodesource/distributions/blob/master/README.md#debinstall
+At the time of this writing, Neal has installed Node 18.14.2. (02/25/2023)
+
 Creating a Typescript / PixiJS Project in VS Code
 (See https://www.youtube.com/watch?v=EpOPR03z4Vw series.)
 
@@ -5,11 +9,13 @@ I. Setup the project with Typescript
 
    1. mkdir ~/src/javascript/typescript/Asteroids-JS
    2. Open folder in VS Code
+
+   npm install typescript --save-dev
    3. Create the following folders in the Asteroids-JS folder:
       ./public ./src ./src/classes ./src/interfaces
 
    4. Create a tsconfig file. In the terminal type:
-      tsc --init
+      npx tsc --init
 
    5. In tsconfig, make the following changes:
    "rootDir": "./src",
@@ -23,7 +29,7 @@ I. Setup the project with Typescript
 
    7. Setup the ES6 Module System. In tsconfig.json, make the following changes:
    "target": "es6",  
-   "module": "es2015", 
+   "module": "es2017", 
 
    Find the "<script>" tag in the index.html, and change:
    <script src='app.js'></script>
@@ -52,14 +58,27 @@ I. Setup the project with Typescript
    import {hasAction} from ./interfaces/hasAction.js
 
 
+NOTE: For a VERY handy github Typescript template with nice tools and configs:
+https://medium.com/codex/how-to-set-up-a-typescript-project-2022-2d06ddbe3f17
+
+with the template at:
+
+https://github.com/hellokvn/medium-typescript-boilerplate
+
+Create a simple typescript test file, app.ts containing:
+console.log('Hello World');
+
+Try compiling with: npx tsc app.ts
+If you get an error involving '@types', update with this command:
+npm i -D @types/node
+
+
 II. Setup Pixi.JS
 
+Install pixi.js - I installed 7.1.2, non-minified version, saved to ./node_modules
+npm install pixi.js@7.1.2 --save-dev
 
+III. other
 
+Populate a .gitignore file in the project root.
 
-
-....
-
-
-Install PixiJS:
-npm install pixi.js

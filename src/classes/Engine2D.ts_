@@ -1,5 +1,6 @@
 import { Polygon } from "../../node_modules/pixi.js";
 import { Rectangle } from "../../node_modules/pixi.js";
+import { Point } from "../../node_modules/pixi.js";
 
 //****************************************************************************
 // ----- general information -----
@@ -317,101 +318,96 @@ class Worldport {
 		p.y += ty;
 	}
 
-	public void translatepoly(Polygon poly, int tx, int ty)
+	translatepoly(poly: Polygon, tx: number, ty: number)
 	{
-		for (int i=0; i<poly.npoints; i++) {
-			poly.xpoints[i] += tx;
-			poly.ypoints[i] += ty;
+		const len = poly.points.length;
+		for (let i=0; i<len; i+=2) {
+			poly.points[i]   += tx;
+			poly.points[i+1] += ty;
 		}
 	}
 
-	public void scalepoly(Polygon poly, double sx, double sy)
+	scalepoly(poly: Polygon, sx: number, sy: number)
 	{
-		for (int i=0; i<poly.npoints; i++) {
-			poly.xpoints[i] = (int) ((double)poly.xpoints[i] * sx);
-			poly.ypoints[i] = (int) ((double)poly.ypoints[i] * sy);
+		const len = poly.points.length;
+		for (let i=0; i<len; i+=2) {
+			poly.points[i]   *= sx;
+			poly.points[i+1] *= sy;
 		}
 	}
 
-	public void rotatepoint(Point p, double angle)
+	rotatepoint(p: Point, angle_degrees: number)
 	{
-		int x, y;
-		double rad, costheta, sintheta;
-
-		rad = toradians(angle);
-		costheta = Math.cos(rad);
-		sintheta = Math.sin(rad);
-		x = p.x;
-		y = p.y;
-		p.x = (int) (x * costheta - y * sintheta);
-		p.y = (int) (x * sintheta + y * costheta);
+		const rad = toradians(angle_degrees);
+		const costheta = Math.cos(rad);
+		const sintheta = Math.sin(rad);
+		const x = p.x;
+		const y = p.y;
+		p.x = x * costheta - y * sintheta;
+		p.y = x * sintheta + y * costheta;
 	}
 
-	public void rotatepoly(Polygon poly, double angle)
+	rotatepoly(poly: Polygon, angle_degrees: number)
 	{
-		int x, y;
-		double rad, costheta, sintheta;
+		const rad = toradians(angle_degrees);
+		const costheta = Math.cos(rad);
+		const sintheta = Math.sin(rad);
 
-		rad = toradians(angle);
-		costheta = Math.cos(rad);
-		sintheta = Math.sin(rad);
-
-		for (int i=0; i<poly.npoints; i++) {
-			x = poly.xpoints[i];
-			y = poly.ypoints[i];
-			poly.xpoints[i] = (int) (x * costheta - y * sintheta);
-			poly.ypoints[i] = (int) (x * sintheta + y * costheta);
+		const len = poly.points.length;
+		for (let i=0; i<len; i+=2) {
+			const x = poly.points[i];
+			const y = poly.points[i+1];
+			poly.points[i] = x * costheta - y * sintheta;
+			poly.points[i+1] = x * sintheta + y * costheta;
 		}
 	}
 
-	public void rotatepoint(Point p, double cost, double sint)
+	rotatepoint(p: Point, cost: number, sint: number)
 	{
-		int x, y;
-
-		x = p.x;
-		y = p.y;
-		p.x = (int) (x * cost - y * sint);
-		p.y = (int) (x * sint + y * cost);
+		const x = p.x;
+		const y = p.y;
+		p.x = x * cost - y * sint;
+		p.y = x * sint + y * cost;
 	}
 
-	public void rotatepoly(Polygon poly, double cost, double sint)
+	rotatepoly(poly: Polygon, cost: number, sint: number)
 	{
-		int x, y;
-
-		for (int i=0; i<poly.npoints; i++) {
-			x = poly.xpoints[i];
-			y = poly.ypoints[i];
-			poly.xpoints[i] = (int) (x * cost - y * sint);
-			poly.ypoints[i] = (int) (x * sint + y * cost);
+		const len = poly.points.length;
+		for (let i=0; i<len; i+=2) {
+			const x = poly.points[i];
+			const y = poly.points[i+1];
+			poly.points[i] = x * cost - y * sint;
+			poly.points[i+1] = x * sint + y * cost;
 		}
 	}
 
-	public boolean copypoly(Polygon polyfrom, Polygon polyto)
+	copypoly(polyfrom: Polygon, polyto: Polygon): boolean
 	{
-		if ( polyfrom.npoints != polyto.npoints )
+		if ( polyfrom.points.length != polyto.points.length )
 			return( false );
 
-		for (int i=0; i<polyfrom.npoints; i++) {
-			polyto.xpoints[i] = polyfrom.xpoints[i];
-			polyto.ypoints[i] = polyfrom.ypoints[i];
+		const len = polyfrom.points.length;
+		for (let i=0; i<len; i++) {
+			polyto.points[i] = polyfrom.points[i];
 		}
 		return( true );
 	}
 
-	public void Worldpoint2Viewpoint(Viewport vp, Point worldp, Point viewp)
+	Worldpoint2Viewpoint(vp: Viewport, worldp: Point, viewp: Point)
 	{
-		viewp.x = (int) (vp.a * worldp.x + vp.b);
-		viewp.y = (int) (vp.c * worldp.y + vp.d);
+		viewp.x = vp.a * worldp.x + vp.b;
+		viewp.y = vp.c * worldp.y + vp.d;
 	}
 
-	public boolean WorldpolytoViewpoly(Viewport vp, Polygon wpoly, Polygon vpoly)
+	WorldpolytoViewpoly(vp: Viewport, wpoly: Polygon, vpoly: Polygon): boolean
 	{
-		if ( wpoly.npoints != vpoly.npoints )
+		if ( wpoly.points.length != vpoly.points.length )
 			return( false );
 
-		for (int i=0; i<wpoly.npoints; i++) {
-			vpoly.xpoints[i] = (int) (vp.a * wpoly.xpoints[i] + vp.b);
-			vpoly.ypoints[i] = (int) (vp.c * wpoly.ypoints[i] + vp.d);
+		const len = wpoly.points.length;
+		for (let i=0; i<len; i+=2) {
+			vpoly.points[i]   = vp.a * wpoly.points[i] + vp.b;
+			vpoly.points[i+1] = vp.c * wpoly.points[i+1] + vp.d
 		}
 		return( true );
 	}
