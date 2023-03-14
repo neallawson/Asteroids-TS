@@ -125,7 +125,7 @@ class VectorMover extends Mover
 		this.vecshape = null;
 	}
 
-	addVectorShape(vecshape: VectorShape): null
+	addVectorShape(vecshape: VectorShape): void
 	{
 		this.vecshape = vecshape;
 	}
@@ -134,27 +134,28 @@ class VectorMover extends Mover
 
 	xthrust(thrust: number): number
 	{
-		return this.vecshape.xthrust(thrust);
+		// TODO: Get rid of this initial check. Too slow! Inefficient!
+		return this.vecshape!.xthrust(thrust);
 	}
 
 	ythrust(thrust: number): number
 	{
-		return this.vecshape.ythrust(thrust);
+		return this.vecshape!.ythrust(thrust);
 	}
 
 	rotate_right(): void
 	{
-		this.vecshape.rotate_right();
+		this.vecshape!.rotate_right();
 	}
 
 	rotate_left(): void
 	{
-		this.vecshape.rotate_left();
+		this.vecshape!.rotate_left();
 	}
 
 	rotate_center(): void
 	{
-		this.vecshape.rotate_center();
+		this.vecshape!.rotate_center();
 	}
 
 	// tick()	--	This method overrides Mover.tick() and subclasses 
@@ -189,7 +190,7 @@ class VectorMover extends Mover
 				this.oldy = this.y;
 			}
 		}
-		this.vecshape.move(dx, dy);
+		this.vecshape!.move(dx, dy);
 	}
 
 	// public void paint(Graphics g)
