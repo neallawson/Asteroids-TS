@@ -1,7 +1,15 @@
+import { Polygon } from "../../node_modules/pixi.js";
+import { Mover } from "./Mover";
+import { VectorMover } from "./Mover";
+import { ViewOptions } from "pixi.js";
+import { VectorShape, Viewport } from "./Engine2D";
+import { Worldport } from "./Engine2D";
+
+
 //****************************************************************************
 // ----- general information -----
 //
-// Rocks.java	--	The asteroids themselves
+// Rock.java	--	The asteroids themselves
 //
 // Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
 // Initial Release:		01/29/97.
@@ -9,53 +17,51 @@
 // Copyright (c) Neal Lawson, 1997
 //
 // ----- version information -----
-// v 1.10a, 05/07/97, Rocks now extend VectorMover...see history & repairs
+// v 1.10a, 05/07/97, Rock now extend VectorMover...see history & repairs
 // v 1.00a,	12/20/96 - 01/29/97,	Initial Classes and testing.
 //
 // ----- history and repairs -----
 // 05/07/97 -- v 1.10a,
-//				Rocks now extend VectorMover instead of Mover.  Modified
+//				Rock now extend VectorMover instead of Mover.  Modified
 //				code to support this change:
 //				a. r_vecshape -> vm_vecshape in VectorMover
 //				b. removed delta computations in tick(), remove x, y
 //
 // ----- Description -----
-// Rocks is a Mover which implements the asteroid rocks.
+// Rock is a Mover which implements the asteroid rock.
 //****************************************************************************
 
-import java.awt.*;
-import Mover;
 
-class Rocks extends VectorMover {
-	static final int Large_x[] = {0, 50, 300, 650, 670, 800,
-											750, 600, 400, 150, 250, 0};
-	static final int Large_y[] = {300, 100, 0, 100, 250, 400,
-											650, 800, 700, 750, 500, 300};
-	static Polygon LargePolygon;
-	static final int R_LARGE = 0;
-	static final int R_MEDIUM = 1;
-	static final int R_SMALL = 2;
-	static final int ROT_LEFT = 0;
-	static final int ROT_RIGHT = 1;
-	static final int R_LSCORE = 50;
-	static final int R_MSCORE = 75;
-	static final int R_SSCORE = 100;
+class Rock extends VectorMover {
+	static Large_rock_data = [
+        0, 300,   50, 100,   300, 0,   650, 100,
+        670, 250, 800, 400,  750, 650, 600, 800,
+        400, 700, 150, 750,  250, 500,
+    ];
+	// private static Large_x = [0, 50, 300, 650, 670, 800,
+	// 								750, 600, 400, 150, 250, 0];
+	// private static Large_y = [300, 100, 0, 100, 250, 400,
+	// 								650, 800, 700, 750, 500, 300];
+	static LargePolygon: Polygon = new Polygon(Rock.Large_rock_data);
+	static R_LARGE = 0;
+	static R_MEDIUM = 1;
+	static R_SMALL = 2;
+	static ROT_LEFT = 0;
+	static ROT_RIGHT = 1;
+	static R_LSCORE = 50;
+	static R_MSCORE = 75;
+	static R_SSCORE = 100;
 
-	int rot_ticks;					// rotate how quickly
-	int rot_dir;					// rotation direction
-	int cur_tick;					// count up to rot_ticks before rotating
-	int size;						// size of this rock
+	private num_rotations: number;		// how many rotate steps to complete a full rotation
+	private rot_ticks: number;			// rotate how quickly
+	private rot_dir: number;			// rotation direction
+	private cur_tick: number;			// count up to rot_ticks before rotating
+	private size: number;				// size of this rock
 
-	// initClass()	--	This method is called once for the entire class:
-	// It sets up the arrays of points used by subsequent rock instances.
-	static public void initClass()
-	{
-		LargePolygon = new Polygon(Large_x, Large_y, Large_x.length);
-	}
 	
-	public Rocks(int size, int x, int y, int xvelocity, int yvelocity)
+	constructor(vp: Viewport, size: number, x: number, y: number, xvelocity: number, yvelocity: number, num_rotations: number)
 	{
-		super();
+		super(vp, Mover.TOPO_WRAP, x, y, xvelocity, yvelocity);
 
 		// setup our VectorShape...scale if necessary
 		this.size = size;

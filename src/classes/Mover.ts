@@ -36,7 +36,7 @@ import { Worldport } from "./Engine2D";
 //  *		@version	1.0
 //  */
 
- class Mover
+ export class Mover
 {
 	// Two types of topological interaction with the GameCanvas:
 	static TOPO_WRAP = 0;
@@ -109,7 +109,7 @@ import { Worldport } from "./Engine2D";
  *		@version	1.0
  */
 
-class VectorMover extends Mover
+export class VectorMover extends Mover
 {
 	private vp: Viewport;	// TODO: Should this really be here?
 	private oldx: number;	// previous x-position.  Mesh with m_x
@@ -134,7 +134,8 @@ class VectorMover extends Mover
 
 	xthrust(thrust: number): number
 	{
-		// TODO: Get rid of this initial check. Too slow! Inefficient!
+		// The exclamation point tells compiler, trust me - there will be a vecshape here.
+		// https://www.cloudhadoop.com/typescript-object-is-possibly-null-undefined/
 		return this.vecshape!.xthrust(thrust);
 	}
 
