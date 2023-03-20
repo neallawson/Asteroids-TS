@@ -48,7 +48,7 @@ export class VectorShape {
 
 	// npoints not needed in the typescript implentation.
 	// protected npoints: number;				// number of points in following Poly's
-	protected world_pts: Polygon;		// world coordinates for this shape
+	public world_pts: Polygon;		// world coordinates for this shape
 	protected screen_pts: Polygon;		// transformed screen coordinates
 	protected rot_pts: Polygon;			// rotated, world coordinates
 	protected bounds: Rectangle;		// bounding rectangle (for world_pts)

@@ -4,6 +4,7 @@ import { VectorMover } from "./Mover";
 import { ViewOptions } from "pixi.js";
 import { VectorShape, Viewport } from "./Engine2D";
 import { Worldport } from "./Engine2D";
+import { GameUtils } from "./GameUtils";
 
 
 //****************************************************************************
@@ -62,93 +63,87 @@ class Rock extends VectorMover {
 	constructor(vp: Viewport, size: number, x: number, y: number, xvelocity: number, yvelocity: number, num_rotations: number)
 	{
 		super(vp, Mover.TOPO_WRAP, x, y, xvelocity, yvelocity);
-
-		// setup our VectorShape...scale if necessary
 		this.size = size;
-		vm_vecshape = new VectorShape(LargePolygon, parent.gc_vp, Large_x.length);
-		if ( size == R_MEDIUM )
-			parent.gc_vp.wp.scalepoly(vm_vecshape.world_pts, 0.6, 0.6);
-		else if ( size == R_SMALL )
-			parent.gc_vp.wp.scalepoly(vm_vecshape.world_pts, 0.3, 0.3);
-
-		// Translate (move) this shape to x, y
-		parent.gc_vp.wp.translatepoly(vm_vecshape.world_pts, x, y);
-		m_x = x;
-		m_y = y;
-		vm_oldx = x;	// VectorMover uses these two to mesh with m_x, m_y.
-		vm_oldy = y;
-
-		// initialize remaining Mover variables
-		m_xvel = xvelocity;
-		m_yvel = yvelocity;
-		m_alive = true;
+		this.num_rotations = num_rotations;
 
 		// setup random rotation variables
-		cur_tick = 0;
-		rot_ticks = 2 + Gameutil.rand(15);
-		rot_dir = Gameutil.rand(100) < 50 ? ROT_LEFT : ROT_RIGHT;
+		this.cur_tick = 0;							// count up to rot_ticks before rotating
+        this.rot_ticks = 2 + GameUtils.one2n(15);	// rotate how quickly 1 + or 2 +
+													// rotation direction
+		this.rot_dir = GameUtils.odds(50) ? Rock.ROT_LEFT ? Rock.ROT_RIGHT;
+
+		// setup our VectorShape...scale if necessary...add to super() via inherited method.
+		const vecshape: VectorShape = new VectorShape(Rock.LargePolygon, vp, num_rotations);
+		if ( size == Rock.R_MEDIUM )
+			Worldport.scalepoly(vecshape.world_pts, 0.6, 0.6);
+		else if ( size == Rock.R_SMALL )
+			Worldport.scalepoly(vecshape.world_pts, 0.3, 0.3);
+		this.addVectorShape(vecshape);
+
+		// Translate (move) this shape to x, y
+		Worldport.translatepoly(vecshape.world_pts, x, y);
 	}
 
-	public void tick()
+	tick(): void
 	{
 		// rotate the rock yet?
-		cur_tick++;
-		if (cur_tick == rot_ticks) {
-			cur_tick = 0;
-			if (rot_dir == ROT_LEFT)
-				rotate_left();
+		this.cur_tick++;
+		if (this.cur_tick == this.rot_ticks) {
+			this.cur_tick = 0;
+			if (this.rot_dir == Rock.ROT_LEFT)
+				this.rotate_left();
 			else
-				rotate_right();
+				this.rotate_right();
 		}
 
 		super.tick(); 	// VectorMover.tick(): apply topology, move vm_vecshape
 	}
 
-	public void paint(Graphics g)
-	{
-		g.setColor(Color.white);
-		g.drawPolygon(vm_vecshape.screen_pts);
-	}
+	// public void paint(Graphics g)
+	// {
+	// 	g.setColor(Color.white);
+	// 	g.drawPolygon(vm_vecshape.screen_pts);
+	// }
 
 	// Loop through the bullets[] array...check for point intersections
-	public void checkHits(Mover bullets[])
-	{
-		int i;
-		Bullet abullet;
+	// public void checkHits(Mover bullets[])
+	// {
+	// 	int i;
+	// 	Bullet abullet;
 
-		for (i=0; i<bullets.length; i++) {
-			abullet = (Bullet) bullets[i];
-			if ( abullet != null && abullet.m_alive ) {
-				if ( vm_vecshape.PointInShape(abullet.m_x, abullet.m_y) ) {
-					abullet.die();
-					die();
-					break;
-				}
-			}
-		}
-	}
+	// 	for (i=0; i<bullets.length; i++) {
+	// 		abullet = (Bullet) bullets[i];
+	// 		if ( abullet != null && abullet.m_alive ) {
+	// 			if ( vm_vecshape.PointInShape(abullet.m_x, abullet.m_y) ) {
+	// 				abullet.die();
+	// 				die();
+	// 				break;
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	// rock has been hit by bullet or ship
-	public void die()
-	{
-		super.die();
-		hit();
-	}
+	// die(): void
+	// {
+	// 	super.die();
+	// 	this.hit();
+	// }
 
 	// When rock is hit, this routine spawns new ones based on rock size
-	private void hit()
-	{
-		if (size == R_LARGE) {
-			parent.incrementScore(R_LSCORE);
-			parent.addRock(parent.createRock(R_MEDIUM, m_x, m_y));
-			parent.addRock(parent.createRock(R_MEDIUM, m_x, m_y));
-		}
-		else if (size == R_MEDIUM) {
-			parent.incrementScore(R_MSCORE);
-			parent.addRock(parent.createRock(R_SMALL, m_x, m_y));
-			parent.addRock(parent.createRock(R_SMALL, m_x, m_y));
-		}
-		else if (size == R_SMALL)
-			parent.incrementScore(R_SSCORE);
-	}
+	// hit(): void
+	// {
+	// 	if (size == R_LARGE) {
+	// 		parent.incrementScore(R_LSCORE);
+	// 		parent.addRock(parent.createRock(R_MEDIUM, m_x, m_y));
+	// 		parent.addRock(parent.createRock(R_MEDIUM, m_x, m_y));
+	// 	}
+	// 	else if (size == R_MEDIUM) {
+	// 		parent.incrementScore(R_MSCORE);
+	// 		parent.addRock(parent.createRock(R_SMALL, m_x, m_y));
+	// 		parent.addRock(parent.createRock(R_SMALL, m_x, m_y));
+	// 	}
+	// 	else if (size == R_SMALL)
+	// 		parent.incrementScore(R_SSCORE);
+	// }
 }

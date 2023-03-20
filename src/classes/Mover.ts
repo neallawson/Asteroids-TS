@@ -112,9 +112,9 @@ import { Worldport } from "./Engine2D";
 export class VectorMover extends Mover
 {
 	private vp: Viewport;	// TODO: Should this really be here?
-	private oldx: number;	// previous x-position.  Mesh with m_x
-	private oldy: number;	// previous y-position.  Mesh with m_y
-	private vecshape: VectorShape | null;	// The Vector Shape object for this VM.
+	protected oldx: number;	// previous x-position.  Mesh with m_x
+	protected oldy: number;	// previous y-position.  Mesh with m_y
+	protected vecshape: VectorShape | null;	// The Vector Shape object for this VM.
 
 	constructor(vp: Viewport, topology: number, x: number, y: number, xvel: number, yvel: number)
 	{
