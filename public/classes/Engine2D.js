@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const pixi_js_1 = require("../../node_modules/pixi.js");
+import { Rectangle } from "../../node_modules/pixi.js";
 //****************************************************************************
 // ----- general information -----
 //
@@ -38,7 +36,7 @@ const pixi_js_1 = require("../../node_modules/pixi.js");
 //  *		@author	Neal Lawson
 //  *		@version	1.0
 //  */
-class VectorShape {
+export class VectorShape {
     // /**
     //  *		VectorShape(Viewport)	--	This is VectorShape's simplest constructor.
     //  *		Classes extending VectorShape which call this constructor must setup
@@ -56,132 +54,164 @@ class VectorShape {
     //  *		must call SetupPoints() when it has a polygon available.
     //  */
     constructor(pts, vp, nrotate) {
+        this.aboutx = 0; // geometrical center of shape, x-coord.
+        this.abouty = 0; // geometrical center of shape, y-coord.
+        this.num_rotations = 0; // number of rotations per 360 deg.
         this.vp = vp;
-        this.SetupPoints(pts, nrotate);
+        this.world_pts = pts.clone();
+        this.screen_pts = pts.clone();
+        this.rot_pts = pts.clone();
+        this.vp.wp.WorldpolytoViewpoly(this.vp, this.world_pts, this.screen_pts); // setup screen_pts
+        this.bounds = new Rectangle();
+        this.calc_bounds();
+        this.position = 0;
+        this.trig_vals = [];
+        // Setup rotational variables if this VectorShape will need them
+        if (nrotate > 0) {
+            this.num_rotations = nrotate;
+            for (let i = 0; i < this.num_rotations; i++) {
+                let radians = Worldport.toradians(360 - i * (360 / this.num_rotations));
+                this.trig_vals.push([Math.cos(radians), Math.sin(radians)]);
+            }
+        }
     }
     // /**
     //  *		VectorShape.SetupPoints()	--	Allocate and initialize the various
     //  *		point arrays, bounding rectangle, and ALL instance variables EXCEPT
     //  *		the Viewport.
     //  */
-    SetupPoints(pts, nrotate) {
-        // npoints = pts.npoints; The typescript version of this class doesn't need this.
-        this.world_pts = pts.clone();
-        this.screen_pts = pts.clone();
-        this.rot_pts = pts.clone();
-        this.vp.wp.WorldpolytoViewpoly(vp, world_pts, screen_pts); // setup screen_pts
-        this.bounds = new pixi_js_1.Rectangle();
-        this.calc_bounds();
-        this.position = 0;
-        // Setup rotational variables if this VectorShape will need them
-        if (nrotate > 0) {
-            this.num_rotations = nrotate;
-            trig_vals = new double[num_rotations][2];
-            for (int; i = 0; i < num_rotations)
-                ;
-            i++;
-            {
-                double;
-                radians = vp.wp.toradians(360 - i * (360 / num_rotations));
-                trig_vals[i][COS] = Math.cos(radians);
-                trig_vals[i][SIN] = Math.sin(radians);
+    // SetupPoints(pts: Polygon, nrotate: number)
+    // {
+    // 	// npoints = pts.npoints; The typescript version of this class doesn't need this.
+    // 	this.world_pts = pts.clone();
+    // 	this.screen_pts = pts.clone();
+    // 	this.rot_pts = pts.clone();
+    // 	this.vp.wp.WorldpolytoViewpoly(this.vp, this.world_pts, this.screen_pts);	// setup screen_pts
+    // 	this.bounds = new Rectangle();
+    // 	this.calc_bounds();
+    // 	this.position = 0;
+    // 	// Setup rotational variables if this VectorShape will need them
+    // 	if ( nrotate > 0 ) {
+    // 		this.num_rotations = nrotate;
+    // 		for (let i=0; i<this.num_rotations; i++) {
+    // 			let radians = this.vp.wp.toradians(360 - i*(360/this.num_rotations));
+    // 			this.trig_vals.push( [Math.cos(radians), Math.sin(radians)] );
+    // 		}
+    // 	}
+    // }
+    /**
+     *		VectorShape.calc_bounds - Re-calculate the bounding rectangle for
+     *		the world polygon and its geometrical center.
+     */
+    calc_bounds() {
+        let maxx = 0;
+        let maxy = 0;
+        // pixi.js Polygon object has a 'points' member - array of points in x,y,x,y... sequence.
+        // Initialize bounds on the first point...skip it in the loop.
+        this.bounds.x = this.world_pts.points[0];
+        this.bounds.y = this.world_pts.points[1];
+        const len = this.world_pts.points.length;
+        for (let i = 2; i < len; i += 2) {
+            const x = this.world_pts.points[i];
+            const y = this.world_pts.points[i + 1];
+            if (x < this.bounds.x) {
+                this.bounds.x = x;
+            }
+            if (y < this.bounds.y) {
+                this.bounds.y = y;
+            }
+            if (x > maxx) {
+                maxx = x;
+            }
+            if (y > maxy) {
+                maxy = y;
             }
         }
+        this.bounds.width = maxx - this.bounds.x;
+        this.bounds.height = maxy - this.bounds.y;
+        this.aboutx = this.bounds.x + this.bounds.width / 2;
+        this.abouty = this.bounds.y + this.bounds.height / 2;
     }
-    calc_bounds() {
-        int;
-        maxx = 0;
-        int;
-        maxy = 0;
-        bounds.x = world_pts.xpoints[0];
-        bounds.y = world_pts.ypoints[0];
-        for (int; i = 0; i < world_pts.npoints)
-            ;
-        i++;
-        {
-            if (world_pts.xpoints[i] < bounds.x)
-                bounds.x = world_pts.xpoints[i];
-            if (world_pts.ypoints[i] < bounds.y)
-                bounds.y = world_pts.ypoints[i];
-            if (world_pts.xpoints[i] > maxx)
-                maxx = world_pts.xpoints[i];
-            if (world_pts.ypoints[i] > maxy)
-                maxy = world_pts.ypoints[i];
-        }
-        bounds.width = maxx - bounds.x;
-        bounds.height = maxy - bounds.y;
-        aboutx = bounds.x + bounds.width / 2;
-        abouty = bounds.y + bounds.height / 2;
-    }
-    move(int, xvel, int, yvel) {
+    // /**
+    //  *		move() -- Move this shape by translating and rotating (if necessary)
+    //  *		it's world and rotational polygons.  The correctly moved shape will be
+    //  *		represented in the rotated polygon, rot_pts.  The shape is translated
+    //  *		by 'xvel,yvel' world units.  Rotation is accomplished by 1) translating
+    //  *		to 0,0, rotating about the geometrical center, translated back to
+    //  *		the correct location.  The shape's screen polygon is then built by
+    //  *		mapping the worldpoint polygon (rot_pts) into the viewport space.
+    //  */
+    move(xvel, yvel) {
         // translate the polygon by 'xvel, yvel'
-        vp.wp.translatepoly(world_pts, xvel, yvel);
+        Worldport.translatepoly(this.world_pts, xvel, yvel);
         // calculate new bounding rectangle AND new geom. center
-        calc_bounds();
+        this.calc_bounds();
+        // translate the polygon by 'xvel, yvel'
+        Worldport.translatepoly(this.world_pts, xvel, yvel);
         // copy the world polygon into the rotational polygon
-        System.arraycopy(world_pts.xpoints, 0, rot_pts.xpoints, 0, world_pts.npoints);
-        System.arraycopy(world_pts.ypoints, 0, rot_pts.ypoints, 0, world_pts.npoints);
+        // System.arraycopy(world_pts.xpoints, 0, rot_pts.xpoints, 0, world_pts.npoints);
+        // System.arraycopy(world_pts.ypoints, 0, rot_pts.ypoints, 0, world_pts.npoints);
         // rotate if not in the 0 position
-        if (position != 0) {
+        if (this.position != 0) {
             // translate to (0,0)
-            vp.wp.translatepoly(rot_pts, -aboutx, -abouty);
+            Worldport.translatepoly(this.rot_pts, -this.aboutx, -this.abouty);
             // fast version of rotatepoly()
-            vp.wp.rotatepoly(rot_pts, trig_vals[position][COS], trig_vals[position][SIN]);
+            Worldport.rotatepoly(this.rot_pts, this.trig_vals[this.position][VectorShape.COS_OFFSET], this.trig_vals[this.position][VectorShape.SIN_OFFSET]);
             // translate back to (aboutx, abouty)
-            vp.wp.translatepoly(rot_pts, aboutx, abouty);
+            Worldport.translatepoly(this.rot_pts, this.aboutx, this.abouty);
         }
         // Map the screen_pts (viewport coords) from rot_pts (worldport coords).
-        vp.wp.WorldpolytoViewpoly(vp, rot_pts, screen_pts);
+        this.vp.wp.WorldpolytoViewpoly(this.vp, this.rot_pts, this.screen_pts);
     }
-    xthrust(int, thrust) {
-        return (trig_vals[position][SIN] * thrust);
+    xthrust(thrust) {
+        return (this.trig_vals[this.position][VectorShape.SIN_OFFSET] * thrust);
     }
-    ythrust(int, thrust) {
-        return (trig_vals[position][COS] * thrust);
+    ythrust(thrust) {
+        return (this.trig_vals[this.position][VectorShape.COS_OFFSET] * thrust);
     }
     rotate_right() {
-        if (position == num_rotations - 1)
-            position = 0;
+        if (this.position == this.num_rotations - 1)
+            this.position = 0;
         else
-            position++;
+            this.position++;
     }
     rotate_left() {
-        if (position == 0)
-            position = num_rotations - 1;
+        if (this.position == 0)
+            this.position = this.num_rotations - 1;
         else
-            position--;
+            this.position--;
     }
     rotate_center() {
-        position = 0;
+        this.position = 0;
     }
-    paint(Graphics, g) {
-        g.drawPolygon(screen_pts);
-    }
-    PointInShape(int, x, int, y) {
+    // paint(Graphics g)
+    // {
+    // 	g.drawPolygon(this.screen_pts);
+    // }
+    // Given a point (x,y) in World coordinates, return true if this
+    // point is in world_pts and false otherwise.
+    PointInShape(x, y) {
         // First, check the bounding box...then polygon itself
-        return (bounds.inside(x, y));
+        return (this.bounds.contains(x, y));
         //		if ( bounds.inside(x, y) )
         //			return( world_pts.inside(x, y) );
         //		return( false );
     }
-    ShapeInShape(VectorShape, vs) {
-        int;
-        i;
-        int;
-        n = vs.world_pts.xpoints.length;
-        int;
-        vs_x[] = vs.world_pts.xpoints;
-        int;
-        vs_y[] = vs.world_pts.ypoints;
-        for (i = 0; i < n; i++) {
-            if (PointInShape(vs_x[i], vs_y[i]))
+    // See if this.VectorShape intersects another VectorShape, vs, by
+    // testing PointInShape() for each vertex of vs.
+    ShapeInShape(vs) {
+        let len = vs.world_pts.points.length;
+        for (let i = 0; i < len; i += 2) {
+            const x = vs.world_pts.points[i];
+            const y = vs.world_pts.points[i + 1];
+            if (this.PointInShape(x, x))
                 return (true);
         }
         return (false);
     }
 } // end class VectorShape
-VectorShape.COS = 0; // offset into trig_vals
-VectorShape.SIN = 1; // offset into trig_vals
+VectorShape.COS_OFFSET = 0; // offset into trig_vals
+VectorShape.SIN_OFFSET = 1; // offset into trig_vals
 /**
  *		class Worldport -- Implement a 2d World coordinate system.
  *		This system is based on integers and provides methods for
@@ -193,154 +223,127 @@ VectorShape.SIN = 1; // offset into trig_vals
  *		@author	Neal Lawson
  *		@version	1.0
  */
-class Worldport {
-    Worldport(int, xmin, int, xmax, int, ymin, int, ymax) {
-        xwl = xmin;
-        xwr = xmax;
-        ywb = ymin;
-        ywt = ymax;
+export class Worldport {
+    // constructor(xmin, xmax, ymin, ymax)
+    constructor(xwl, xwr, ywb, ywt) {
+        this.xwl = xwl;
+        this.xwr = xwr;
+        this.ywb = ywb;
+        this.ywt = ywt;
     }
-    resize_port(int, xmin, int, xmax, int, ymin, int, ymax) {
-        xwl = xmin;
-        xwr = xmax;
-        ywb = ymin;
-        ywt = ymax;
+    // never call this directly:  only called from a Viewport object!
+    resize_port(xmin, xmax, ymin, ymax) {
+        this.xwl = xmin;
+        this.xwr = xmax;
+        this.ywb = ymin;
+        this.ywt = ymax;
     }
-    toradians(double, d) {
-        return (d * Math.PI / 180.0);
+    static toradians(d) {
+        return d * Math.PI / 180.0;
     }
-    translatepoint(Point, p, int, tx, int, ty) {
+    static translatepoint(p, tx, ty) {
         p.x += tx;
         p.y += ty;
     }
-    translatepoly(Polygon, poly, int, tx, int, ty) {
-        for (int; i = 0; i < poly.npoints)
-            ;
-        i++;
-        {
-            poly.xpoints[i] += tx;
-            poly.ypoints[i] += ty;
+    static translatepoly(poly, tx, ty) {
+        const len = poly.points.length;
+        for (let i = 0; i < len; i += 2) {
+            poly.points[i] += tx;
+            poly.points[i + 1] += ty;
         }
     }
-    scalepoly(Polygon, poly, double, sx, double, sy) {
-        for (int; i = 0; i < poly.npoints)
-            ;
-        i++;
-        {
-            poly.xpoints[i] = (int)((double), poly.xpoints[i] * sx);
-            poly.ypoints[i] = (int)((double), poly.ypoints[i] * sy);
+    static scalepoly(poly, sx, sy) {
+        const len = poly.points.length;
+        for (let i = 0; i < len; i += 2) {
+            poly.points[i] *= sx;
+            poly.points[i + 1] *= sy;
         }
     }
-    rotatepoint(Point, p, double, angle) {
-        int;
-        x, y;
-        double;
-        rad, costheta, sintheta;
-        rad = toradians(angle);
-        costheta = Math.cos(rad);
-        sintheta = Math.sin(rad);
-        x = p.x;
-        y = p.y;
-        p.x = (int)(x * costheta - y * sintheta);
-        p.y = (int)(x * sintheta + y * costheta);
+    static rotatepoint_by_angle(p, angle_degrees) {
+        const rad = Worldport.toradians(angle_degrees);
+        const costheta = Math.cos(rad);
+        const sintheta = Math.sin(rad);
+        const x = p.x;
+        const y = p.y;
+        p.x = x * costheta - y * sintheta;
+        p.y = x * sintheta + y * costheta;
     }
-    rotatepoly(Polygon, poly, double, angle) {
-        int;
-        x, y;
-        double;
-        rad, costheta, sintheta;
-        rad = toradians(angle);
-        costheta = Math.cos(rad);
-        sintheta = Math.sin(rad);
-        for (int; i = 0; i < poly.npoints)
-            ;
-        i++;
-        {
-            x = poly.xpoints[i];
-            y = poly.ypoints[i];
-            poly.xpoints[i] = (int)(x * costheta - y * sintheta);
-            poly.ypoints[i] = (int)(x * sintheta + y * costheta);
+    static rotatepoly_by_angle(poly, angle_degrees) {
+        const rad = Worldport.toradians(angle_degrees);
+        const costheta = Math.cos(rad);
+        const sintheta = Math.sin(rad);
+        const len = poly.points.length;
+        for (let i = 0; i < len; i += 2) {
+            const x = poly.points[i];
+            const y = poly.points[i + 1];
+            poly.points[i] = x * costheta - y * sintheta;
+            poly.points[i + 1] = x * sintheta + y * costheta;
         }
     }
-    rotatepoint(Point, p, double, cost, double, sint) {
-        int;
-        x, y;
-        x = p.x;
-        y = p.y;
-        p.x = (int)(x * cost - y * sint);
-        p.y = (int)(x * sint + y * cost);
+    static rotatepoint(p, cost, sint) {
+        const x = p.x;
+        const y = p.y;
+        p.x = x * cost - y * sint;
+        p.y = x * sint + y * cost;
     }
-    rotatepoly(Polygon, poly, double, cost, double, sint) {
-        int;
-        x, y;
-        for (int; i = 0; i < poly.npoints)
-            ;
-        i++;
-        {
-            x = poly.xpoints[i];
-            y = poly.ypoints[i];
-            poly.xpoints[i] = (int)(x * cost - y * sint);
-            poly.ypoints[i] = (int)(x * sint + y * cost);
+    static rotatepoly(poly, cost, sint) {
+        const len = poly.points.length;
+        for (let i = 0; i < len; i += 2) {
+            const x = poly.points[i];
+            const y = poly.points[i + 1];
+            poly.points[i] = x * cost - y * sint;
+            poly.points[i + 1] = x * sint + y * cost;
         }
     }
-    copypoly(Polygon, polyfrom, Polygon, polyto) {
-        if (polyfrom.npoints != polyto.npoints)
-            return (false);
-        for (int; i = 0; i < polyfrom.npoints)
-            ;
-        i++;
-        {
-            polyto.xpoints[i] = polyfrom.xpoints[i];
-            polyto.ypoints[i] = polyfrom.ypoints[i];
+    static copypoly(polyfrom, polyto) {
+        if (polyfrom.points.length != polyto.points.length)
+            return false;
+        const len = polyfrom.points.length;
+        for (let i = 0; i < len; i++) {
+            polyto.points[i] = polyfrom.points[i];
         }
-        return (true);
+        return true;
     }
-    Worldpoint2Viewpoint(Viewport, vp, Point, worldp, Point, viewp) {
-        viewp.x = (int)(vp.a * worldp.x + vp.b);
-        viewp.y = (int)(vp.c * worldp.y + vp.d);
+    Worldpoint2Viewpoint(vp, worldp, viewp) {
+        viewp.x = vp.a * worldp.x + vp.b;
+        viewp.y = vp.c * worldp.y + vp.d;
     }
-    WorldpolytoViewpoly(Viewport, vp, Polygon, wpoly, Polygon, vpoly) {
-        if (wpoly.npoints != vpoly.npoints)
-            return (false);
-        for (int; i = 0; i < wpoly.npoints)
-            ;
-        i++;
-        {
-            vpoly.xpoints[i] = (int)(vp.a * wpoly.xpoints[i] + vp.b);
-            vpoly.ypoints[i] = (int)(vp.c * wpoly.ypoints[i] + vp.d);
+    WorldpolytoViewpoly(vp, wpoly, vpoly) {
+        if (wpoly.points.length != vpoly.points.length)
+            return false;
+        const len = wpoly.points.length;
+        for (let i = 0; i < len; i += 2) {
+            vpoly.points[i] = vp.a * wpoly.points[i] + vp.b;
+            vpoly.points[i + 1] = vp.c * wpoly.points[i + 1] + vp.d;
         }
-        return (true);
+        return true;
     }
 } // end class Worldport
-/**
- *		class Viewport -- Implement a 2d screen coordinate system.
- *		Notice that a Viewport is linked to a Worldport.
- *		This system is based on integers and provides methods for
- *		translating, scaling, rotating, and copying polygons defined
- *		in Java.Awt.Polygon.
- *		Method ViewtoWorld will convert Viewport coordinates to
- *		the linked Worldport coordinates.
- *
- *		@author	Neal Lawson
- *		@version	1.0
- */
-class Viewport {
-    Viewport(Worldport, wp, int, xmin, int, xmax, int, ymin, int, ymax) {
+// /**
+//  *		class Viewport -- Implement a 2d screen coordinate system.
+//  *		Notice that a Viewport is linked to a Worldport.
+//  *		This system is based on integers and provides methods for
+//  *		translating, scaling, rotating, and copying polygons defined
+//  *		in Java.Awt.Polygon.
+//  *		Method ViewtoWorld will convert Viewport coordinates to
+//  *		the linked Worldport coordinates.
+//  *
+//  *		@author	Neal Lawson
+//  *		@version	1.0
+//  */
+export class Viewport {
+    // protected aspectratio: number;
+    // constructor(wp, xmin, xmax, ymin, ymax)
+    constructor(wp, xvl, xvr, yvb, yvt) {
         this.wp = wp;
-        xvl = xmin;
-        xvr = xmax;
-        yvb = ymin;
-        yvt = ymax;
-        calc_scalefactors();
-    }
-    calc_scalefactors() {
-        //		int xd, yd;
-        a = (double)(xvr - xvl) / (double)(wp.xwr - wp.xwl);
-        b = (double);
-        xvl - a * wp.xwl;
-        c = (double)(yvt - yvb) / (double)(wp.ywt - wp.ywb);
-        d = (double);
-        yvb - c * wp.ywb;
+        this.xvl = xvl;
+        this.xvr = xvr;
+        this.yvb = yvb;
+        this.yvt = yvt;
+        this.a = (xvr - xvl) / (wp.xwr - wp.xwl);
+        this.b = xvl - this.a * wp.xwl;
+        this.c = (yvt - yvb) / (wp.ywt - wp.ywb);
+        this.d = yvb - this.c * wp.ywb;
         // NOTE:  Tried to implement aspectratio in WorldPort.WorldpolyToViewpoly().
         // This experiment failed...try again later. -Neal
         //		xd = Math.abs(xvr-xvl);
@@ -350,235 +353,197 @@ class Viewport {
         //		else
         //			aspectratio = xd/yd;
     }
-    resize_worldport(int, xmin, int, xmax, int, ymin, int, ymax) {
-        wp.resize_port(xmin, xmax, ymin, ymax);
-        calc_scalefactors();
+    calc_scalefactors() {
+        this.a = (this.xvr - this.xvl) / (this.wp.xwr - this.wp.xwl);
+        this.b = this.xvl - this.a * this.wp.xwl;
+        this.c = (this.yvt - this.yvb) / (this.wp.ywt - this.wp.ywb);
+        this.d = this.yvb - this.c * this.wp.ywb;
+        // a = (double)(xvr - xvl) / (double)(wp.xwr - wp.xwl);
+        // b = (double)xvl - a * wp.xwl;
+        // c = (double)(yvt - yvb) / (double)(wp.ywt - wp.ywb);
+        // d = (double)yvb - c * wp.ywb;
+        // NOTE:  Tried to implement aspectratio in WorldPort.WorldpolyToViewpoly().
+        // This experiment failed...try again later. -Neal
+        //		xd = Math.abs(xvr-xvl);
+        //		yd = Math.abs(yvt-yvb);
+        //		if (xd > yd)
+        //			aspectratio = yd/xd;
+        //		else
+        //			aspectratio = xd/yd;
     }
-    set_aspect(double, asp) {
-        aspectratio = asp;
+    resize_worldport(xmin, xmax, ymin, ymax) {
+        this.wp.resize_port(xmin, xmax, ymin, ymax);
+        this.calc_scalefactors();
     }
-    translatepoly(Polygon, poly, int, tx, int, ty) {
-        for (int; i = 0; i < poly.npoints)
-            ;
-        i++;
-        {
-            poly.xpoints[i] += tx;
-            poly.ypoints[i] += ty;
+    // set_aspect(asp: number)
+    // {
+    // 	this.aspectratio = asp;
+    // }
+    static translatepoly(poly, tx, ty) {
+        Worldport.translatepoly(poly, tx, ty);
+    }
+    static scalepoly(poly, sx, sy) {
+        Worldport.scalepoly(poly, sx, sy);
+    }
+    static rotatepoly_by_angle(poly, angle) {
+        Worldport.rotatepoly_by_angle(poly, angle);
+    }
+    static rotatepoly(poly, cost, sint) {
+        Worldport.rotatepoly(poly, cost, sint);
+    }
+    static copypoly(polyfrom, polyto) {
+        return Worldport.copypoly(polyfrom, polyto);
+    }
+    // TODO: Neal isn't sure this will work - if these are passed in as some (poly[i], poly[i+1]),
+    // will changing wx and wy locally be references into the passed array? Or just local values?
+    ViewtoWorld(vx, vy, wx, wy) {
+        wx = (vx - this.b) / this.a;
+        wy = (vy - this.d) / this.c;
+    }
+    ViewpolytoWorldpoly(vpoly, wpoly) {
+        if (vpoly.points.length != wpoly.points.length)
+            return false;
+        const len = vpoly.points.length;
+        for (let i = 0; i < len; i += 2) {
+            wpoly.points[i] = (vpoly.points[i] - this.b) / this.a;
+            wpoly.points[i + 1] = (vpoly.points[i + 1] - this.d) / this.c;
         }
-    }
-    scalepoly(Polygon, poly, int, sx, int, sy) {
-        for (int; i = 0; i < poly.npoints)
-            ;
-        i++;
-        {
-            poly.xpoints[i] *= sx;
-            poly.ypoints[i] *= sy;
-        }
-    }
-    rotatepoly(Polygon, poly, double, angle) {
-        int;
-        x, y;
-        double;
-        rad, costheta, sintheta;
-        rad = wp.toradians(angle);
-        costheta = Math.cos(rad);
-        sintheta = Math.sin(rad);
-        for (int; i = 0; i < poly.npoints)
-            ;
-        i++;
-        {
-            x = poly.xpoints[i];
-            y = poly.ypoints[i];
-            poly.xpoints[i] = (int)(x * costheta - y * sintheta / aspectratio);
-            poly.ypoints[i] = (int)(x * sintheta * aspectratio + y * costheta);
-        }
-    }
-    rotatepoly(Polygon, poly, double, cost, double, sint) {
-        int;
-        x, y;
-        for (int; i = 0; i < poly.npoints)
-            ;
-        i++;
-        {
-            x = poly.xpoints[i];
-            y = poly.ypoints[i];
-            poly.xpoints[i] = (int)(x * cost - y * sint / aspectratio);
-            poly.ypoints[i] = (int)(x * sint * aspectratio + y * cost);
-        }
-    }
-    copypoly(Polygon, polyfrom, Polygon, polyto) {
-        if (polyfrom.npoints != polyto.npoints)
-            return (false);
-        for (int; i = 0; i < polyfrom.npoints)
-            ;
-        i++;
-        {
-            polyto.xpoints[i] = polyfrom.xpoints[i];
-            polyto.ypoints[i] = polyfrom.ypoints[i];
-        }
-        return (true);
-    }
-    ViewtoWorld(int, vx, int, vy, int, wx, int, wy) {
-        wx = (int)(((double)), vx - b) / a;
-        ;
-        wy = (int)(((double)), vy - d) / c;
-        ;
-    }
-    ViewpolytoWorldpoly(Polygon, vpoly, Polygon, wpoly) {
-        if (vpoly.npoints != wpoly.npoints)
-            return (false);
-        for (int; i = 0; i < vpoly.npoints)
-            ;
-        i++;
-        ViewtoWorld(vpoly.xpoints[i], vpoly.ypoints[i], wpoly.xpoints[i], wpoly.ypoints[i]);
-        return (true);
+        return true;
     }
 } // end class Viewport
-/**
- *		class Line -- Define a line as two endpoints.  Provide
- *		methods for testing line intersections geometrically.
- *
- *		@author	Neal Lawson
- *		@version	1.0
- */
-class Line {
-    Line(int, leftx, int, lefty, int, rightx, int, righty) {
-        leftend = new Point(leftx, lefty);
-        rightend = new Point(rightx, righty);
-    }
-    Line(Point, leftin, Point, rightin) {
-        leftend = new Point(leftin.x, leftin.y);
-        rightend = new Point(rightin.x, rightin.y);
-    }
-    setleft(int, x, int, y) {
-        leftend.x = x;
-        leftend.y = y;
-    }
-    setright(int, x, int, y) {
-        rightend.x = x;
-        rightend.y = y;
-    }
-    draw(Graphics, g) {
-        g.drawLine(leftend.x, leftend.y, rightend.x, rightend.y);
-    }
-    intersect(Line, other, Point, where) {
-        if (leftend.x > other.leftend.x && leftend.x > other.rightend.x
-            && rightend.x > other.leftend.x && rightend.x > other.rightend.x)
-            return (false);
-        if (leftend.y > other.leftend.y && leftend.y > other.rightend.y
-            && rightend.y > other.leftend.y && rightend.y > other.rightend.y)
-            return (false);
-        if (leftend.x < other.leftend.x && leftend.x < other.rightend.x
-            && rightend.x < other.leftend.x && rightend.x < other.rightend.x)
-            return (false);
-        if (leftend.y < other.leftend.y && leftend.y < other.rightend.y
-            && rightend.y < other.leftend.y && rightend.y < other.rightend.y)
-            return (false);
-        return (slow_intersect(other, where));
-    }
-    slow_intersect(Line, other, Point, where) {
-        double;
-        dkx, dky;
-        double;
-        dlx, dly;
-        double;
-        dmx, dmy;
-        double;
-        dnx, dny;
-        double;
-        b1, b2, a1, a2;
-        double;
-        xi, yi;
-        double;
-        tol = 0.0001;
-        // doubles of endoints
-        dkx = (double);
-        leftend.x;
-        dky = (double);
-        leftend.y;
-        dlx = (double);
-        rightend.x;
-        dly = (double);
-        rightend.y;
-        dmx = (double);
-        other.leftend.x;
-        dmy = (double);
-        other.leftend.y;
-        dnx = (double);
-        other.rightend.x;
-        dny = (double);
-        other.rightend.y;
-        // check for common endpoint
-        if ((dmx == dkx && dmy == dky)
-            || (dmx == dlx && dmy == dly)) {
-            where.x = other.leftend.x;
-            where.y = other.leftend.y;
-            return (true);
-        }
-        if ((dnx == dkx && dny == dky)
-            || (dnx == dlx && dny == dly)) {
-            where.x = other.rightend.x;
-            where.y = other.rightend.y;
-            return (true);
-        }
-        if (dkx != dlx) {
-            b1 = (dly - dky) / (dlx - dkx);
-            if (dmx != dnx) {
-                b2 = (dny - dmy) / (dnx - dmx);
-                a1 = (dky - b1 * dkx);
-                a2 = (dmy - b2 * dmx);
-                if (java.lang.Math.abs(b1 - b2) < tol)
-                    return (false);
-                else {
-                    xi = -(a1 - a2) / (b1 - b2);
-                    yi = a1 + b1 * xi;
-                }
-            }
-            else {
-                xi = dmx;
-                a1 = (dky - b1 * dkx);
-                yi = a1 + b1 * xi;
-            }
-        }
-        else {
-            xi = dkx;
-            if (dmx != dnx) {
-                b2 = (dny - dmy) / (dnx - dmx);
-                a2 = (dmy - b2 * dmx);
-                yi = (a2 + b2 * xi);
-            }
-            else
-                return (false);
-        }
-        if ((dkx - xi) * (xi - dlx) >= 0 && (dmx - xi) * (xi - dnx) >= 0
-            && (dky - yi) * (yi - dly) >= 0 && (dmy - yi) * (yi - dny) >= 0) {
-            where.x = round(xi);
-            where.y = round(yi);
-            return (true);
-        }
-        else
-            return (false);
-    }
-    round(double, x) {
-        double;
-        a, b, c;
-        if (x > 0) {
-            a = java.lang.Math.floor(x);
-            b = java.lang.Math.floor(x + 0.5);
-            if (a == b)
-                return ((int));
-            a;
-            ;
-        }
-        else
-            return ((int)(a + 1.0));
-    }
-}
-{
-    a = java.lang.Math.ceil(x);
-    b = java.lang.Math.ceil(x - 0.5);
-    if (a == b)
-        return ((int)(a));
-    else
-        return ((int)(a - 1.0));
-}
+// /**
+//  *		class Line -- Define a line as two endpoints.  Provide
+//  *		methods for testing line intersections geometrically.
+//  *
+//  *		@author	Neal Lawson
+//  *		@version	1.0
+//  */
+// class Line {
+// 	protected Point leftend;
+// 	protected Point rightend;
+// 	public Line(int leftx, int lefty, int rightx, int righty)
+// 	{
+// 		leftend  = new Point(leftx, lefty);
+// 		rightend = new Point(rightx, righty);
+// 	}
+// 	public Line(Point leftin, Point rightin)
+// 	{
+// 		leftend  = new Point(leftin.x, leftin.y);
+// 		rightend = new Point(rightin.x, rightin.y);
+// 	}
+// 	public void setleft(int x, int y)
+// 	{
+// 		leftend.x = x;
+// 		leftend.y = y;
+// 	}
+// 	public void setright(int x, int y)
+// 	{
+// 		rightend.x = x;
+// 		rightend.y = y;
+// 	}
+// 	public void draw(Graphics g)
+// 	{
+// 		g.drawLine(leftend.x, leftend.y, rightend.x, rightend.y);
+// 	}
+// 	public boolean intersect(Line other, Point where)
+// 	{
+// 		if (leftend.x>other.leftend.x && leftend.x>other.rightend.x
+// 			&& rightend.x>other.leftend.x && rightend.x>other.rightend.x)
+// 			return( false );
+// 		if (leftend.y>other.leftend.y && leftend.y>other.rightend.y
+// 			&& rightend.y>other.leftend.y && rightend.y>other.rightend.y)
+// 			return( false );
+// 		if (leftend.x<other.leftend.x && leftend.x<other.rightend.x
+// 			&& rightend.x<other.leftend.x && rightend.x<other.rightend.x)
+// 			return( false );
+// 		if (leftend.y<other.leftend.y && leftend.y<other.rightend.y
+// 			&& rightend.y<other.leftend.y && rightend.y<other.rightend.y)
+// 			return( false );
+// 		return( slow_intersect(other, where) );
+// 	}
+// 	public boolean slow_intersect(Line other, Point where)
+// 	{
+// 		double dkx, dky;
+// 		double dlx, dly;
+// 		double dmx, dmy;
+// 		double dnx, dny;
+// 		double b1, b2, a1, a2;
+// 		double xi, yi;
+// 		double tol = 0.0001;
+// 						// doubles of endoints
+// 		dkx=(double) leftend.x; dky=(double) leftend.y;
+// 		dlx=(double) rightend.x; dly=(double) rightend.y;
+// 		dmx=(double) other.leftend.x; dmy=(double) other.leftend.y;
+// 		dnx=(double) other.rightend.x; dny=(double) other.rightend.y;
+// 						// check for common endpoint
+// 		if ( (dmx == dkx && dmy == dky)
+// 			|| (dmx == dlx && dmy == dly) ) {
+// 			where.x = other.leftend.x;
+// 			where.y = other.leftend.y;
+// 			return(true);
+// 		}
+// 		if ( (dnx == dkx && dny == dky)
+// 			|| (dnx == dlx && dny == dly) ) {
+// 			where.x = other.rightend.x;
+// 			where.y = other.rightend.y;
+// 			return(true);
+// 		}
+// 		if ( dkx != dlx ) {
+// 			b1 = (dly - dky) / (dlx - dkx);
+// 			if ( dmx != dnx ) {
+// 				b2 = (dny - dmy) / (dnx - dmx);
+// 				a1 = (dky - b1*dkx);
+// 				a2 = (dmy - b2*dmx);
+// 				if ( java.lang.Math.abs(b1-b2) < tol )
+// 					return(false);
+// 				else {
+// 					xi = -(a1-a2)/(b1-b2);
+// 					yi = a1+b1*xi;
+// 				}
+// 			}
+// 			else {
+// 				xi = dmx;
+// 				a1 = (dky - b1*dkx);
+// 				yi = a1+b1*xi;
+// 			}
+// 		}
+// 		else {
+// 			xi = dkx;
+// 			if (dmx != dnx) {
+// 				b2 = (dny - dmy) / (dnx - dmx);
+// 				a2 = (dmy - b2*dmx);
+// 				yi = (a2 + b2*xi);
+// 			}
+// 			else
+// 				return(false);
+// 		}
+// 		if ( (dkx-xi)*(xi-dlx) >= 0 && (dmx-xi)*(xi-dnx) >= 0
+//  			&& (dky-yi)*(yi-dly) >= 0 && (dmy-yi)*(yi-dny) >= 0 ) {
+// 				where.x = round(xi);
+// 				where.y = round(yi);
+// 				return(true);
+// 		}
+// 		else
+// 			return(false);
+// 	}
+// 	static int round(double x)
+// 	{
+// 		double a, b, c;
+// 		if ( x > 0 ) {
+// 			a = java.lang.Math.floor(x);
+// 			b = java.lang.Math.floor(x+0.5);
+// 			if (a == b)
+// 				return((int) a);
+// 			else
+// 				return((int) (a+1.0));
+// 		}
+// 		else {
+// 			a = java.lang.Math.ceil(x);
+// 			b = java.lang.Math.ceil(x-0.5);
+// 			if (a == b)
+// 				return((int)(a));
+// 			else
+// 				return((int) (a-1.0));
+// 		}
+// 	}
+// }		// end class Line

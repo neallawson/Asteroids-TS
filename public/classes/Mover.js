@@ -1,4 +1,3 @@
-"use strict";
 //****************************************************************************
 // ----- general information -----
 //
@@ -23,115 +22,130 @@
 // in order to be functional.  Many of the concepts of this class were 
 // taken from Chris Boyke's game, SpaceWar.
 //****************************************************************************
-var java = .awt.;
- * ;
+// /**
+//  *		Mover	--	a moving object class.
+//  *		@author	Neal Lawson
+//  *		@version	1.0
+//  */
+export class Mover {
+    constructor(wp, topology, x, // x-position of this mover (World coords)
+    y, // y-position of this mover
+    xvel, // x-velocity of this mover
+    yvel // y-velocity of this mover
+    ) {
+        this.wp = wp;
+        this.topology = topology;
+        this.x = x;
+        this.y = y;
+        this.xvel = xvel;
+        this.yvel = yvel;
+        this.alive = true;
+    }
+    // handleEvent(Event e)
+    // {
+    // 	return( false );
+    // }
+    // paint(Graphics g)
+    // {
+    // }
+    die() {
+        this.alive = false;
+    }
+    startRound() {
+        this.xvel = 0;
+        this.yvel = 0;
+        this.alive = true;
+    }
+    // tick()	--	This method is called by the GameCanvas 'parent'.
+    // Use this method to move and do something.
+    tick() {
+        if (this.topology == Mover.TOPO_WRAP) {
+            if (this.x < this.wp.xwl) {
+                this.x = this.wp.xwr;
+            }
+            else if (this.x > this.wp.xwr)
+                this.x = this.wp.xwl;
+            if (this.y < this.wp.ywb) {
+                this.y = this.wp.ywt;
+            }
+            else if (this.y > this.wp.ywt)
+                this.y = this.wp.ywb;
+        }
+        else if (this.topology == Mover.TOPO_BOUNCE) {
+            if (this.x < this.wp.xwl || this.x > this.wp.xwr)
+                this.xvel = -this.xvel;
+            if (this.y < this.wp.ywb || this.y > this.wp.ywt)
+                this.yvel = -this.yvel;
+        }
+        // TOTO add else {error}
+    }
+}
+// Two types of topological interaction with the GameCanvas:
+Mover.TOPO_WRAP = 0;
+Mover.TOPO_BOUNCE = 1;
 /**
  *		VectorMover	--	a moving, 2d vector object
  *		@author	Neal Lawson
  *		@version	1.0
  */
-class VectorMover extends Mover {
-    VectorMover() {
-        super();
-        vm_oldx = vm_oldy = 0;
+export class VectorMover extends Mover {
+    constructor(vp, topology, x, y, xvel, yvel) {
+        super(vp.wp, topology, x, y, xvel, yvel);
+        this.vp = vp;
+        this.oldx = x;
+        this.oldy = y;
+        this.vecshape = null;
     }
-    xthrust(int, thrust) {
-        return (vm_vecshape.xthrust(thrust));
+    addVectorShape(vecshape) {
+        this.vecshape = vecshape;
     }
-    ythrust(int, thrust) {
-        return (vm_vecshape.ythrust(thrust));
+    // The following 5 methods are movement wrappers for vm_vecshape
+    xthrust(thrust) {
+        // The exclamation point tells compiler, trust me - there will be a vecshape here.
+        // https://www.cloudhadoop.com/typescript-object-is-possibly-null-undefined/
+        return this.vecshape.xthrust(thrust);
+    }
+    ythrust(thrust) {
+        return this.vecshape.ythrust(thrust);
     }
     rotate_right() {
-        vm_vecshape.rotate_right();
+        this.vecshape.rotate_right();
     }
     rotate_left() {
-        vm_vecshape.rotate_left();
+        this.vecshape.rotate_left();
     }
     rotate_center() {
-        vm_vecshape.rotate_center();
+        this.vecshape.rotate_center();
     }
+    // tick()	--	This method overrides Mover.tick() and subclasses 
+    // should override to provide specific movement instructions via
+    // x, y, xvel, yvel, and VectorShape rotation calls.
+    // Overridden tick() should call super.tick() (i.e., VectorMover.tick()
+    // before adding their own movement code.
     tick() {
-        int;
-        dx, dy; // movement deltas
-        // Call Mover.tick():  apply topology to m_x, m_y and m_xvel, m_yvel
+        // Call Mover.tick():  apply topology to x, y and xvel, yvel
         super.tick();
         // Compute Movement delta's and apply to vm_vecshape
-        dx = m_xvel;
-        dy = m_yvel;
-        if (topology == TOPO_WRAP) {
-            if (m_x != vm_oldx) {
-                dx = m_x - vm_oldx;
-                vm_oldx = m_x;
+        let dx = this.xvel;
+        let dy = this.yvel;
+        if (this.topology == Mover.TOPO_WRAP) {
+            if (this.x != this.oldx) {
+                dx = this.x - this.oldx;
+                this.oldx = this.x;
             }
             else {
-                m_x += dx;
-                vm_oldx = m_x;
+                this.x += dx;
+                this.oldx = this.x;
             }
-            if (m_y != vm_oldy) {
-                dy = m_y - vm_oldy;
-                vm_oldy = m_y;
+            if (this.y != this.oldy) {
+                dy = this.y - this.oldy;
+                this.oldy = this.y;
             }
             else {
-                m_y += dy;
-                vm_oldy = m_y;
+                this.y += dy;
+                this.oldy = this.y;
             }
         }
-        vm_vecshape.move(dx, dy);
-    }
-    paint(Graphics, g) {
-        g.setColor(Color.white);
-        g.drawPolygon(vm_vecshape.screen_pts);
-    }
-}
-/**
- *		Mover	--	a moving object class.
- *		@author	Neal Lawson
- *		@version	1.0
- */
-class Mover {
-    constructor() {
-        this.TOPO_WRAP = 0;
-        this.TOPO_BOUNCE = 1;
-    }
-    initClass(GameCanvas, gc, int, game_topology) {
-        parent = gc;
-        topology = game_topology;
-    }
-    // Constructor
-    Mover() {
-        m_xvel = m_yvel = 0;
-        m_alive = true;
-    }
-    handleEvent(Event, e) {
-        return (false);
-    }
-    paint(Graphics, g) {
-    }
-    die() {
-        m_alive = false;
-    }
-    startRound() {
-        m_xvel = m_yvel = 0;
-        m_alive = true;
-    }
-    tick() {
-        if (topology == TOPO_BOUNCE) {
-            if (m_x < parent.gc_wp.xwl || m_x > parent.gc_wp.xwr)
-                m_xvel = -m_xvel;
-            if (m_y < parent.gc_wp.ywb || m_y > parent.gc_wp.ywt)
-                m_yvel = -m_yvel;
-        }
-        else if (topology == TOPO_WRAP) {
-            if (m_x < parent.gc_wp.xwl) {
-                m_x = parent.gc_wp.xwr;
-            }
-            else if (m_x > parent.gc_wp.xwr)
-                m_x = parent.gc_wp.xwl;
-            if (m_y < parent.gc_wp.ywb) {
-                m_y = parent.gc_wp.ywt;
-            }
-            else if (m_y > parent.gc_wp.ywt)
-                m_y = parent.gc_wp.ywb;
-        }
+        this.vecshape.move(dx, dy);
     }
 }

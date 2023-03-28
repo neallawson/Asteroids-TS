@@ -1,4 +1,4 @@
-import { Polygon } from "../../node_modules/pixi.js";
+import { Graphics, Polygon } from "../../node_modules/pixi.js";
 import { Mover } from "./Mover";
 import { VectorMover } from "./Mover";
 import { ViewOptions } from "pixi.js";
@@ -33,7 +33,7 @@ import { GameUtils } from "./GameUtils";
 //****************************************************************************
 
 
-class Rock extends VectorMover {
+export class Rock extends VectorMover {
 	static Large_rock_data = [
         0, 300,   50, 100,   300, 0,   650, 100,
         670, 250, 800, 400,  750, 650, 600, 800,
@@ -58,11 +58,14 @@ class Rock extends VectorMover {
 	private rot_dir: number;			// rotation direction
 	private cur_tick: number;			// count up to rot_ticks before rotating
 	private size: number;				// size of this rock
+	private graphics: Graphics;
 
 	
-	constructor(vp: Viewport, size: number, x: number, y: number, xvelocity: number, yvelocity: number, num_rotations: number)
+	constructor(g: Graphics, vp: Viewport, size: number, x: number, y: number, xvelocity: number, yvelocity: number, num_rotations: number)
 	{
 		super(vp, Mover.TOPO_WRAP, x, y, xvelocity, yvelocity);
+
+		this.graphics = g;
 		this.size = size;
 		this.num_rotations = num_rotations;
 
@@ -70,7 +73,7 @@ class Rock extends VectorMover {
 		this.cur_tick = 0;							// count up to rot_ticks before rotating
         this.rot_ticks = 2 + GameUtils.one2n(15);	// rotate how quickly 1 + or 2 +
 													// rotation direction
-		this.rot_dir = GameUtils.odds(50) ? Rock.ROT_LEFT ? Rock.ROT_RIGHT;
+		this.rot_dir = GameUtils.odds(50) ? Rock.ROT_LEFT : Rock.ROT_RIGHT;
 
 		// setup our VectorShape...scale if necessary...add to super() via inherited method.
 		const vecshape: VectorShape = new VectorShape(Rock.LargePolygon, vp, num_rotations);
@@ -97,6 +100,19 @@ class Rock extends VectorMover {
 		}
 
 		super.tick(); 	// VectorMover.tick(): apply topology, move vm_vecshape
+	}
+
+	paint(): void
+	{
+		this.graphics.lineStyle(5, 0xffffff, 1);
+		this.graphics.drawPolygon(this.vecshape!.screen_pts.points);
+		this.graphics.closePath();
+	}
+
+	die(): void
+	{
+		super.die();
+		this.graphics.destroy();
 	}
 
 	// public void paint(Graphics g)
@@ -146,4 +162,4 @@ class Rock extends VectorMover {
 	// 	else if (size == R_SMALL)
 	// 		parent.incrementScore(R_SSCORE);
 	// }
-}
+}	

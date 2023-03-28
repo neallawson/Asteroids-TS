@@ -49,7 +49,7 @@ export class VectorShape {
 	// npoints not needed in the typescript implentation.
 	// protected npoints: number;				// number of points in following Poly's
 	public world_pts: Polygon;		// world coordinates for this shape
-	protected screen_pts: Polygon;		// transformed screen coordinates
+	public screen_pts: Polygon;		// transformed screen coordinates
 	protected rot_pts: Polygon;			// rotated, world coordinates
 	protected bounds: Rectangle;		// bounding rectangle (for world_pts)
 	protected aboutx: number = 0;		// geometrical center of shape, x-coord.
@@ -148,8 +148,8 @@ export class VectorShape {
 		this.bounds.y = this.world_pts.points[1];
 		const len = this.world_pts.points.length;
 		for (let i=2; i<len; i+=2) {
-			const x = p.points[i];
-			const y = p.points[i+1];
+			const x = this.world_pts.points[i];
+			const y = this.world_pts.points[i+1];
 			if (x < this.bounds.x) {
 				this.bounds.x = x;
 			}
