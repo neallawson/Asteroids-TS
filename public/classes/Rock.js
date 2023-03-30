@@ -1,9 +1,8 @@
-import { Polygon } from "../../node_modules/pixi.js";
-import { Mover } from "./Mover";
-import { VectorMover } from "./Mover";
-import { VectorShape } from "./Engine2D";
-import { Worldport } from "./Engine2D";
-import { GameUtils } from "./GameUtils";
+// import { Graphics, Polygon } from "../../node_modules/pixi.js";
+import { Polygon } from "../../node_modules/pixi.js/dist/pixi.js";
+import { Mover, VectorMover } from "./Mover.js";
+import { VectorShape, Worldport } from "./Engine2D.js";
+import { GameUtils } from "./GameUtils.js";
 //****************************************************************************
 // ----- general information -----
 //

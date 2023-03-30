@@ -1,7 +1,5 @@
 //import { Polygon } from "../../node_modules/pixi.js";
-import { ViewOptions } from "pixi.js";
-import { VectorShape, Viewport } from "./Engine2D";
-import { Worldport } from "./Engine2D";
+import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 
 
 //****************************************************************************

@@ -1,6 +1,5 @@
-import { Polygon } from "../../node_modules/pixi.js";
-import { Rectangle } from "../../node_modules/pixi.js";
-import { Point } from "../../node_modules/pixi.js";
+// import { Polygon, Rectangle, Point } from "../../node_modules/pixi.js";
+import { Polygon, Rectangle, Point } from "../../node_modules/pixi.js/dist/pixi.js";
 
 //****************************************************************************
 // ----- general information -----
@@ -477,6 +476,16 @@ export class Viewport {
 //			aspectratio = yd/xd;
 //		else
 //			aspectratio = xd/yd;
+	}
+
+	// resize() -- Resize this viewport.
+	resize(xmin: number, xmax: number, ymin: number, ymax: number): void
+	{
+		this.xvl = xmin;
+		this.xvr = xmax;
+		this.yvb = ymin;
+		this.yvt = ymax;
+		this.calc_scalefactors();
 	}
 
 	resize_worldport(xmin: number, xmax: number, ymin: number, ymax: number): void

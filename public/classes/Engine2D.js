@@ -1,4 +1,5 @@
-import { Rectangle } from "../../node_modules/pixi.js";
+// import { Polygon, Rectangle, Point } from "../../node_modules/pixi.js";
+import { Rectangle } from "../../node_modules/pixi.js/dist/pixi.js";
 //****************************************************************************
 // ----- general information -----
 //
@@ -37,22 +38,7 @@ import { Rectangle } from "../../node_modules/pixi.js";
 //  *		@version	1.0
 //  */
 export class VectorShape {
-    // /**
-    //  *		VectorShape(Viewport)	--	This is VectorShape's simplest constructor.
-    //  *		Classes extending VectorShape which call this constructor must setup
-    //  *		the polygons themselves.
-    //  */
-    // constructor(vp: Viewport)
-    // {
-    // 	this.vp = vp;
-    // }
-    // /**
-    //  *		VectorShape(Polygon, Viewport)	--	This constructor is called for
-    //  *		VectorShape's that have pre-determined polygons.  If a VectorShape
-    //  *		generates its own polygons (say, randomly), then it calls the simpler
-    //  *		constructor.  In this latter case, the class extending VectorShape
-    //  *		must call SetupPoints() when it has a polygon available.
-    //  */
+
     constructor(pts, vp, nrotate) {
         this.aboutx = 0; // geometrical center of shape, x-coord.
         this.abouty = 0; // geometrical center of shape, y-coord.
@@ -370,6 +356,14 @@ export class Viewport {
         //			aspectratio = yd/xd;
         //		else
         //			aspectratio = xd/yd;
+    }
+    // resize() -- Resize this viewport.
+    resize(xmin, xmax, ymin, ymax) {
+        this.xvl = xmin;
+        this.xvr = xmax;
+        this.yvb = ymin;
+        this.yvt = ymax;
+        this.calc_scalefactors();
     }
     resize_worldport(xmin, xmax, ymin, ymax) {
         this.wp.resize_port(xmin, xmax, ymin, ymax);
