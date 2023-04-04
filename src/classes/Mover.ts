@@ -109,7 +109,7 @@ import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 
 export class VectorMover extends Mover
 {
-	private vp: Viewport;	// TODO: Should this really be here?
+	protected vp: Viewport;	// TODO: Should this really be here?
 	protected oldx: number;	// previous x-position.  Mesh with m_x
 	protected oldy: number;	// previous y-position.  Mesh with m_y
 	protected vecshape: VectorShape | null;	// The Vector Shape object for this VM.

@@ -1,6 +1,6 @@
 // import { Polygon, Rectangle, Point } from "../../node_modules/pixi.js/dist/pixi.js";
-// import { Rectangle } from "../../node_modules/pixi.js/dist/pixi.mjs";
-import { Rectangle } from "pixi.js";
+import { Rectangle } from "../../node_modules/pixi.js/dist/pixi.mjs";
+// import { Rectangle } from "pixi.js";
 //****************************************************************************
 // ----- general information -----
 //
@@ -136,11 +136,8 @@ export class VectorShape {
         Worldport.translatepoly(this.world_pts, xvel, yvel);
         // calculate new bounding rectangle AND new geom. center
         this.calc_bounds();
-        // translate the polygon by 'xvel, yvel'
-        Worldport.translatepoly(this.world_pts, xvel, yvel);
         // copy the world polygon into the rotational polygon
-        // System.arraycopy(world_pts.xpoints, 0, rot_pts.xpoints, 0, world_pts.npoints);
-        // System.arraycopy(world_pts.ypoints, 0, rot_pts.ypoints, 0, world_pts.npoints);
+        this.rot_pts = structuredClone(this.world_pts);
         // rotate if not in the 0 position
         if (this.position != 0) {
             // translate to (0,0)
@@ -308,6 +305,7 @@ export class Worldport {
         }
         return true;
     }
+    // TODO: Belongs in Viewport class?
     Worldpoint2Viewpoint(vp, worldp, viewp) {
         // INT it:
         // viewp.x = vp.a * worldp.x + vp.b;
@@ -315,6 +313,7 @@ export class Worldport {
         viewp.x = Math.round(vp.a * worldp.x + vp.b);
         viewp.y = Math.round(vp.c * worldp.y + vp.d);
     }
+    // TODO: Belongs in Viewport class?
     WorldpolytoViewpoly(vp, wpoly, vpoly) {
         if (wpoly.points.length != vpoly.points.length)
             return false;
@@ -434,6 +433,20 @@ export class Viewport {
         for (let i = 0; i < len; i += 2) {
             wpoly.points[i] = (vpoly.points[i] - this.b) / this.a;
             wpoly.points[i + 1] = (vpoly.points[i + 1] - this.d) / this.c;
+        }
+        return true;
+    }
+    Worldpoint2Viewpoint(worldp, viewp) {
+        viewp.x = Math.round(this.a * worldp.x + this.b);
+        viewp.y = Math.round(this.c * worldp.y + this.d);
+    }
+    WorldpolytoViewpoly(wpoly, vpoly) {
+        if (wpoly.points.length != vpoly.points.length)
+            return false;
+        const len = wpoly.points.length;
+        for (let i = 0; i < len; i += 2) {
+            vpoly.points[i] = Math.round(this.a * wpoly.points[i] + this.b);
+            vpoly.points[i + 1] = Math.round(this.c * wpoly.points[i + 1] + this.d);
         }
         return true;
     }

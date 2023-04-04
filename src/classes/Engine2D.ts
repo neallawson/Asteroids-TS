@@ -54,8 +54,8 @@ export class VectorShape {
 	public screen_pts: Polygon;		// transformed screen coordinates
 	protected rot_pts: Polygon;			// rotated, world coordinates
 	protected bounds: Rectangle;		// bounding rectangle (for world_pts)
-	protected aboutx: number = 0;		// geometrical center of shape, x-coord.
-	protected abouty: number = 0;		// geometrical center of shape, y-coord.
+	public aboutx: number = 0;		// geometrical center of shape, x-coord.
+	public abouty: number = 0;		// geometrical center of shape, y-coord.
 	protected num_rotations: number = 0;// number of rotations per 360 deg.
 	protected trig_vals: number[][];	// cosine and sine for each num_rotation.
 	protected position: number;			// rotation position
@@ -162,14 +162,9 @@ export class VectorShape {
 
 		// calculate new bounding rectangle AND new geom. center
 		this.calc_bounds();
-
-		// translate the polygon by 'xvel, yvel'
-		Worldport.translatepoly(this.world_pts, xvel, yvel);
 			
-
 		// copy the world polygon into the rotational polygon
-		// System.arraycopy(world_pts.xpoints, 0, rot_pts.xpoints, 0, world_pts.npoints);
-		// System.arraycopy(world_pts.ypoints, 0, rot_pts.ypoints, 0, world_pts.npoints);
+		this.rot_pts = structuredClone(this.world_pts);
 
 		// rotate if not in the 0 position
 		if ( this.position != 0 ) {
@@ -378,6 +373,7 @@ export class Worldport {
 		return true;
 	}
 
+	// TODO: Belongs in Viewport class?
 	Worldpoint2Viewpoint(vp: Viewport, worldp: Point, viewp: Point): void
 	{
 		// INT it:
@@ -387,6 +383,7 @@ export class Worldport {
         viewp.y = Math.round(vp.c * worldp.y + vp.d);
 	}
 
+	// TODO: Belongs in Viewport class?
 	WorldpolytoViewpoly(vp: Viewport, wpoly: Polygon, vpoly: Polygon): boolean
 	{
 		if (wpoly.points.length != vpoly.points.length)
@@ -537,6 +534,27 @@ export class Viewport {
 		}
 		return true;
 	}
+
+	Worldpoint2Viewpoint(worldp: Point, viewp: Point): void
+	{
+		viewp.x = Math.round(this.a * worldp.x + this.b);
+        viewp.y = Math.round(this.c * worldp.y + this.d);
+	}
+
+	WorldpolytoViewpoly(wpoly: Polygon, vpoly: Polygon): boolean
+	{
+		if (wpoly.points.length != vpoly.points.length)
+			return false;
+
+		const len = wpoly.points.length;
+		for (let i=0; i<len; i+=2) {
+			vpoly.points[i] = Math.round(this.a * wpoly.points[i] + this.b);
+            vpoly.points[i + 1] = Math.round(this.c * wpoly.points[i + 1] + this.d);
+		}
+		return true;
+	}
+
+
 }		// end class Viewport
 
 

@@ -2,8 +2,8 @@
 // let p = new Polygon(0,300, 50,100, 300,0, 650,100, 670,250, 800,400,
 //     750,650, 600,800, 400,700, 150,750, 250,500, 0,300);
 // console.log(p);
-// import { Renderer, Container, Ticker, Graphics } from '../node_modules/pixi.js/dist/pixi.mjs';
-import { Renderer, Container, Ticker, Graphics } from 'pixi.js';
+import { Renderer, Container, Ticker, Graphics } from '../node_modules/pixi.js/dist/pixi.mjs';
+// import { Renderer, Container, Ticker, Graphics } from 'pixi.js';
 import { GameConstants } from './classes/GameConstants.js';
 import { Rock } from './classes/Rock.js';
 import { Worldport, Viewport } from './classes/Engine2D.js';
@@ -43,8 +43,8 @@ for (let i = 0; i < 20; i++) {
         size = Rock.R_MEDIUM;
     else if (x >= 30 && x < 60)
         size = Rock.R_SMALL;
-    let xvel = GameUtils.one2n(50);
-    let yvel = GameUtils.one2n(50);
+    let xvel = GameUtils.one2n(30);
+    let yvel = GameUtils.one2n(30);
     if (GameUtils.odds(50))
         xvel *= -1;
     if (GameUtils.odds(50))
@@ -53,6 +53,7 @@ for (let i = 0; i < 20; i++) {
     let begy = GameUtils.one2n(9000);
     let num_rotations = GameUtils.one2n(64);
     // console.log('x: '+x + ', xvel: '+xvel+', yvel: '+yvel+', begx: '+begx+', begy: '+begy+', num rotations: '+num_rotations);
+    // BUG: Bombs when num_rotations is 0.
     let rock = new Rock(view_port, size, begx, begy, xvel, yvel, num_rotations);
     // console.log(rock);
     rocks.push(rock);
@@ -62,6 +63,7 @@ let g = new Graphics();
 stage.addChild(g);
 // MAIN GAME LOOP
 const ticker = new Ticker();
+ticker.maxFPS = 60;
 ticker.add(main_loop);
 ticker.start();
 function main_loop(delta) {
@@ -76,6 +78,7 @@ function main_loop(delta) {
         rock.paint(g);
     });
     renderer.render(stage);
+    // console.log("FPS: " + ticker.FPS);
 }
 // let p = new Polygon(0,300, 50,100, 300,0, 650,100, 670,250, 800,400,
 //     750,650, 600,800, 400,700, 150,750, 250,500, 0,300);

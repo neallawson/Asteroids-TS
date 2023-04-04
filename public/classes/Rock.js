@@ -1,6 +1,6 @@
 // import { Graphics, Polygon } from "../../node_modules/pixi.js";
-// import { Polygon } from "../../node_modules/pixi.js/dist/pixi.mjs";
-import { Polygon } from "pixi.js";
+import { Polygon, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
+// import { Polygon, Point } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport } from "./Engine2D.js";
 import { GameUtils } from "./GameUtils.js";
@@ -84,9 +84,16 @@ export class Rock extends VectorMover {
         super.tick(); // VectorMover.tick(): apply topology, move vm_vecshape
     }
     paint(g) {
-        g.lineStyle(3, 0xffffff, 1);
+        g.lineStyle(2, 0xffffff, 1);
         g.drawPolygon(this.vecshape.screen_pts.points);
         g.closePath();
+        let vx = 0;
+        let vy = 0;
+        let viewp = new Point(0, 0);
+        let worldp = new Point(this.vecshape.aboutx, this.vecshape.abouty);
+        g.lineStyle(2, 0xdd0000, 1);
+        this.vp.Worldpoint2Viewpoint(worldp, viewp);
+        g.drawCircle(viewp.x, viewp.y, 5);
     }
     die() {
         super.die();
