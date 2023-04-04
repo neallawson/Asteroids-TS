@@ -28,6 +28,16 @@
 //  *		@version	1.0
 //  */
 export class Mover {
+    wp;
+    topology;
+    x;
+    y;
+    xvel;
+    yvel;
+    // Two types of topological interaction with the GameCanvas:
+    static TOPO_WRAP = 0;
+    static TOPO_BOUNCE = 1;
+    alive;
     constructor(wp, topology, x, // x-position of this mover (World coords)
     y, // y-position of this mover
     xvel, // x-velocity of this mover
@@ -80,15 +90,16 @@ export class Mover {
         // TOTO add else {error}
     }
 }
-// Two types of topological interaction with the GameCanvas:
-Mover.TOPO_WRAP = 0;
-Mover.TOPO_BOUNCE = 1;
 /**
  *		VectorMover	--	a moving, 2d vector object
  *		@author	Neal Lawson
  *		@version	1.0
  */
 export class VectorMover extends Mover {
+    vp; // TODO: Should this really be here?
+    oldx; // previous x-position.  Mesh with m_x
+    oldy; // previous y-position.  Mesh with m_y
+    vecshape; // The Vector Shape object for this VM.
     constructor(vp, topology, x, y, xvel, yvel) {
         super(vp.wp, topology, x, y, xvel, yvel);
         this.vp = vp;

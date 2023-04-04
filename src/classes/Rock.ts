@@ -1,4 +1,6 @@
 // import { Graphics, Polygon } from "../../node_modules/pixi.js";
+
+// import { Polygon } from "../../node_modules/pixi.js/dist/pixi.mjs";
 import { Graphics, Polygon } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
@@ -56,14 +58,11 @@ export class Rock extends VectorMover {
 	private rot_dir: number;			// rotation direction
 	private cur_tick: number;			// count up to rot_ticks before rotating
 	private size: number;				// size of this rock
-	private graphics: Graphics;
-
 	
-	constructor(g: Graphics, vp: Viewport, size: number, x: number, y: number, xvelocity: number, yvelocity: number, num_rotations: number)
+	constructor(vp: Viewport, size: number, x: number, y: number, xvelocity: number, yvelocity: number, num_rotations: number)
 	{
 		super(vp, Mover.TOPO_WRAP, x, y, xvelocity, yvelocity);
 
-		this.graphics = g;
 		this.size = size;
 		this.num_rotations = num_rotations;
 
@@ -100,17 +99,17 @@ export class Rock extends VectorMover {
 		super.tick(); 	// VectorMover.tick(): apply topology, move vm_vecshape
 	}
 
-	paint(): void
+	paint(g: Graphics): void
 	{
-		this.graphics.lineStyle(5, 0xffffff, 1);
-		this.graphics.drawPolygon(this.vecshape!.screen_pts.points);
-		this.graphics.closePath();
+		g.lineStyle(3, 0xffffff, 1);
+		g.drawPolygon(this.vecshape!.screen_pts.points);
+		g.closePath();
 	}
 
 	die(): void
 	{
 		super.die();
-		this.graphics.destroy();
+		// this.graphics.destroy();
 	}
 
 	// public void paint(Graphics g)

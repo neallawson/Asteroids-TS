@@ -1,5 +1,6 @@
 // import { Graphics, Polygon } from "../../node_modules/pixi.js";
-import { Polygon } from "../../node_modules/pixi.js/dist/pixi.js";
+// import { Polygon } from "../../node_modules/pixi.js/dist/pixi.mjs";
+import { Polygon } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport } from "./Engine2D.js";
 import { GameUtils } from "./GameUtils.js";
@@ -28,9 +29,31 @@ import { GameUtils } from "./GameUtils.js";
 // Rock is a Mover which implements the asteroid rock.
 //****************************************************************************
 export class Rock extends VectorMover {
-    constructor(g, vp, size, x, y, xvelocity, yvelocity, num_rotations) {
+    static Large_rock_data = [
+        0, 300, 50, 100, 300, 0, 650, 100,
+        670, 250, 800, 400, 750, 650, 600, 800,
+        400, 700, 150, 750, 250, 500,
+    ];
+    // private static Large_x = [0, 50, 300, 650, 670, 800,
+    // 								750, 600, 400, 150, 250, 0];
+    // private static Large_y = [300, 100, 0, 100, 250, 400,
+    // 								650, 800, 700, 750, 500, 300];
+    static LargePolygon = new Polygon(Rock.Large_rock_data);
+    static R_LARGE = 0;
+    static R_MEDIUM = 1;
+    static R_SMALL = 2;
+    static ROT_LEFT = 0;
+    static ROT_RIGHT = 1;
+    static R_LSCORE = 50;
+    static R_MSCORE = 75;
+    static R_SSCORE = 100;
+    num_rotations; // how many rotate steps to complete a full rotation
+    rot_ticks; // rotate how quickly
+    rot_dir; // rotation direction
+    cur_tick; // count up to rot_ticks before rotating
+    size; // size of this rock
+    constructor(vp, size, x, y, xvelocity, yvelocity, num_rotations) {
         super(vp, Mover.TOPO_WRAP, x, y, xvelocity, yvelocity);
-        this.graphics = g;
         this.size = size;
         this.num_rotations = num_rotations;
         // setup random rotation variables
@@ -60,31 +83,13 @@ export class Rock extends VectorMover {
         }
         super.tick(); // VectorMover.tick(): apply topology, move vm_vecshape
     }
-    paint() {
-        this.graphics.lineStyle(5, 0xffffff, 1);
-        this.graphics.drawPolygon(this.vecshape.screen_pts.points);
-        this.graphics.closePath();
+    paint(g) {
+        g.lineStyle(3, 0xffffff, 1);
+        g.drawPolygon(this.vecshape.screen_pts.points);
+        g.closePath();
     }
     die() {
         super.die();
-        this.graphics.destroy();
+        // this.graphics.destroy();
     }
 }
-Rock.Large_rock_data = [
-    0, 300, 50, 100, 300, 0, 650, 100,
-    670, 250, 800, 400, 750, 650, 600, 800,
-    400, 700, 150, 750, 250, 500,
-];
-// private static Large_x = [0, 50, 300, 650, 670, 800,
-// 								750, 600, 400, 150, 250, 0];
-// private static Large_y = [300, 100, 0, 100, 250, 400,
-// 								650, 800, 700, 750, 500, 300];
-Rock.LargePolygon = new Polygon(Rock.Large_rock_data);
-Rock.R_LARGE = 0;
-Rock.R_MEDIUM = 1;
-Rock.R_SMALL = 2;
-Rock.ROT_LEFT = 0;
-Rock.ROT_RIGHT = 1;
-Rock.R_LSCORE = 50;
-Rock.R_MSCORE = 75;
-Rock.R_SSCORE = 100;

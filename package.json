@@ -2,8 +2,8 @@
   "name": "asteroids-ts",
   "version": "1.0.0",
   "description": "Typescript-PixiJS port of Neal Lawson's 1996 Java Asteroids game.",
-  "main": "app.js",
   "type": "module",
+  "exports": "./src/app.js",
   "directories": {
     "doc": "docs"
   },

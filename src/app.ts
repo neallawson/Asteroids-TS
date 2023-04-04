@@ -1,17 +1,18 @@
-// import { Polygon } from '../node_modules/pixi.js';
+// import { Polygon } from 'pixi.js';
 
+// let p = new Polygon(0,300, 50,100, 300,0, 650,100, 670,250, 800,400,
+//     750,650, 600,800, 400,700, 150,750, 250,500, 0,300);
+// console.log(p);
+
+// import { Renderer, Container, Ticker, Graphics } from '../node_modules/pixi.js/dist/pixi.mjs';
 import { Renderer, Container, Ticker, Graphics } from 'pixi.js';
 import { GameConstants } from './classes/GameConstants.js';
 import { Rock } from './classes/Rock.js';
 import { Worldport, Viewport } from './classes/Engine2D.js';
 import { GameUtils } from './classes/GameUtils.js';
 
-// let p = new Polygon(0,300, 50,100, 300,0, 650,100, 670,250, 800,400,
-//     750,650, 600,800, 400,700, 150,750, 250,500, 0,300);
-// console.log(p);
-
 // const canvas = document.getElementById('gamecanvas');
-const canvas = document.body.appendChild(new HTMLCanvasElement);
+const canvas = document.body.appendChild(document.createElement('canvas'));
 let _w = window.innerWidth;
 let _h = window.innerHeight;
 
@@ -35,7 +36,6 @@ function resize() {
 }
 
 const stage = new Container();
-const ticker = new Ticker();
 
 // Setup Engine2D objects
 const world_port = new Worldport(GameConstants.WORLD_MINX, GameConstants.WORLD_MAXX, GameConstants.WORLD_MINY, GameConstants.WORLD_MAXY);
@@ -62,20 +62,25 @@ for (let i=0; i<20; i++) {
     let begx = GameUtils.one2n(9000);
     let begy = GameUtils.one2n(9000);
     let num_rotations = GameUtils.one2n(64);
-    let g = new Graphics();
-    stage.addChild(g);
-    const rock = new Rock(g, view_port, size, begx, begy, xvel, yvel, num_rotations);
+// console.log('x: '+x + ', xvel: '+xvel+', yvel: '+yvel+', begx: '+begx+', begy: '+begy+', num rotations: '+num_rotations);
+
+    let rock = new Rock(view_port, size, begx, begy, xvel, yvel, num_rotations);
+    // console.log(rock);
     rocks.push(rock);
 }
+// renderer.render(stage);
 
-// const graphics = new Graphics();
+let g = new Graphics();
+stage.addChild(g);
 
 // MAIN GAME LOOP
+const ticker = new Ticker();
 ticker.add(main_loop);
 ticker.start();
 
 function main_loop(delta: number) {
     // Draw black background
+    g.clear();
 
     // Tick rocks
     rocks.forEach( (rock) => {
@@ -84,8 +89,9 @@ function main_loop(delta: number) {
 
     // Draw rocks
     rocks.forEach( (rock) => {
-        rock.paint();
+        rock.paint(g);
     });
+    renderer.render(stage);
 }
 
 // let p = new Polygon(0,300, 50,100, 300,0, 650,100, 670,250, 800,400,

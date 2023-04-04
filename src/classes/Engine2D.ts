@@ -1,5 +1,8 @@
-// import { Polygon, Rectangle, Point } from "../../node_modules/pixi.js";
-import { Polygon, Rectangle, Point } from "../../node_modules/pixi.js/dist/pixi.js";
+// import { Polygon, Rectangle, Point } from "../../node_modules/pixi.js/dist/pixi.js";
+
+// import { Rectangle } from "../../node_modules/pixi.js/dist/pixi.mjs";
+import { Polygon, Rectangle, Point } from "pixi.js";
+
 
 //****************************************************************************
 // ----- general information -----
@@ -83,9 +86,9 @@ export class VectorShape {
 	constructor(pts: Polygon, vp: Viewport, nrotate: number)
 	{
 		this.vp = vp;
-		this.world_pts = pts.clone();
-		this.screen_pts = pts.clone();
-		this.rot_pts = pts.clone();
+        this.world_pts = structuredClone(pts);
+        this.screen_pts = structuredClone(pts);
+        this.rot_pts = structuredClone(pts);
 		this.vp.wp.WorldpolytoViewpoly(this.vp, this.world_pts, this.screen_pts);	// setup screen_pts
 		this.bounds = new Rectangle();
 		this.calc_bounds();
@@ -104,37 +107,10 @@ export class VectorShape {
 
 
 	// /**
-	//  *		VectorShape.SetupPoints()	--	Allocate and initialize the various
-	//  *		point arrays, bounding rectangle, and ALL instance variables EXCEPT
-	//  *		the Viewport.
+	//  *		VectorShape.calc_bounds - Re-calculate the bounding rectangle for
+	//  *		the world polygon and its geometrical center.
 	//  */
-
-	// SetupPoints(pts: Polygon, nrotate: number)
-	// {
-	// 	// npoints = pts.npoints; The typescript version of this class doesn't need this.
-	// 	this.world_pts = pts.clone();
-	// 	this.screen_pts = pts.clone();
-	// 	this.rot_pts = pts.clone();
-	// 	this.vp.wp.WorldpolytoViewpoly(this.vp, this.world_pts, this.screen_pts);	// setup screen_pts
-	// 	this.bounds = new Rectangle();
-	// 	this.calc_bounds();
-	// 	this.position = 0;
-
-	// 	// Setup rotational variables if this VectorShape will need them
-	// 	if ( nrotate > 0 ) {
-	// 		this.num_rotations = nrotate;
-	// 		for (let i=0; i<this.num_rotations; i++) {
-	// 			let radians = this.vp.wp.toradians(360 - i*(360/this.num_rotations));
-	// 			this.trig_vals.push( [Math.cos(radians), Math.sin(radians)] );
-	// 		}
-	// 	}
-	// }
-
-
-	/**
-	 *		VectorShape.calc_bounds - Re-calculate the bounding rectangle for
-	 *		the world polygon and its geometrical center.
-	 */
+	// TODO: Make this method more generic - pass in Polygon and Rectange?
 
 	calc_bounds(): void
 	{
@@ -149,24 +125,23 @@ export class VectorShape {
 		for (let i=2; i<len; i+=2) {
 			const x = this.world_pts.points[i];
 			const y = this.world_pts.points[i+1];
-			if (x < this.bounds.x) {
+			if (x < this.bounds.x)
 				this.bounds.x = x;
-			}
-			if (y < this.bounds.y) {
+			if (y < this.bounds.y)
 				this.bounds.y = y;
-			}
-			if (x > maxx) {
+			if (x > maxx)
 				maxx = x;
-			}
-			if (y > maxy) {
+			if (y > maxy)
 				maxy = y;
-			}
 		}
 
 		this.bounds.width = maxx - this.bounds.x;
 		this.bounds.height = maxy - this.bounds.y;
-		this.aboutx = this.bounds.x + this.bounds.width/2;
-		this.abouty = this.bounds.y + this.bounds.height/2;
+		// INT it:
+		// this.aboutx = this.bounds.x + this.bounds.width/2;
+		// this.abouty = this.bounds.y + this.bounds.height/2;
+		this.aboutx = this.bounds.x + Math.round(this.bounds.width/2);
+		this.abouty = this.bounds.y + Math.round(this.bounds.height/2);
 	}
 
 
@@ -198,13 +173,13 @@ export class VectorShape {
 
 		// rotate if not in the 0 position
 		if ( this.position != 0 ) {
-				// translate to (0,0)
-				Worldport.translatepoly(this.rot_pts, -this.aboutx, -this.abouty);
-				// fast version of rotatepoly()
+			// translate to (0,0)
+			Worldport.translatepoly(this.rot_pts, -this.aboutx, -this.abouty);
+			// fast version of rotatepoly()
 			Worldport.rotatepoly(this.rot_pts, this.trig_vals[this.position][VectorShape.COS_OFFSET],
 				this.trig_vals[this.position][VectorShape.SIN_OFFSET]);
-				// translate back to (aboutx, abouty)
-				Worldport.translatepoly(this.rot_pts, this.aboutx, this.abouty);
+			// translate back to (aboutx, abouty)
+			Worldport.translatepoly(this.rot_pts, this.aboutx, this.abouty);
 		}
 
 		// Map the screen_pts (viewport coords) from rot_pts (worldport coords).
@@ -341,8 +316,11 @@ export class Worldport {
 		const sintheta = Math.sin(rad);
 		const x = p.x;
 		const y = p.y;
-		p.x = x * costheta - y * sintheta;
-		p.y = x * sintheta + y * costheta;
+		// INT it:
+		// p.x = x * costheta - y * sintheta;
+		// p.y = x * sintheta + y * costheta;
+		p.x = Math.round(x * costheta - y * sintheta);
+        p.y = Math.round(x * sintheta + y * costheta);
 	}
 
 	static rotatepoly_by_angle(poly: Polygon, angle_degrees: number): void
@@ -355,8 +333,11 @@ export class Worldport {
 		for (let i=0; i<len; i+=2) {
 			const x = poly.points[i];
 			const y = poly.points[i+1];
-			poly.points[i] = x * costheta - y * sintheta;
-			poly.points[i+1] = x * sintheta + y * costheta;
+			// INT it:
+			// poly.points[i] = x * costheta - y * sintheta;
+			// poly.points[i+1] = x * sintheta + y * costheta;
+			poly.points[i] = Math.round(x * costheta - y * sintheta);
+            poly.points[i + 1] = Math.round(x * sintheta + y * costheta);
 		}
 	}
 
@@ -364,8 +345,11 @@ export class Worldport {
 	{
 		const x = p.x;
 		const y = p.y;
-		p.x = x * cost - y * sint;
-		p.y = x * sint + y * cost;
+		// INT it:
+		// p.x = x * cost - y * sint;
+		// p.y = x * sint + y * cost;
+		p.x = Math.round(x * cost - y * sint);
+        p.y = Math.round(x * sint + y * cost);
 	}
 
 	static rotatepoly(poly: Polygon, cost: number, sint: number): void
@@ -374,8 +358,11 @@ export class Worldport {
 		for (let i=0; i<len; i+=2) {
 			const x = poly.points[i];
 			const y = poly.points[i+1];
-			poly.points[i] = x * cost - y * sint;
-			poly.points[i+1] = x * sint + y * cost;
+			// INT it:
+			// poly.points[i] = x * cost - y * sint;
+			// poly.points[i+1] = x * sint + y * cost;
+			poly.points[i] = Math.round(x * cost - y * sint);
+            poly.points[i + 1] = Math.round(x * sint + y * cost);
 		}
 	}
 
@@ -393,8 +380,11 @@ export class Worldport {
 
 	Worldpoint2Viewpoint(vp: Viewport, worldp: Point, viewp: Point): void
 	{
-		viewp.x = vp.a * worldp.x + vp.b;
-		viewp.y = vp.c * worldp.y + vp.d;
+		// INT it:
+		// viewp.x = vp.a * worldp.x + vp.b;
+		// viewp.y = vp.c * worldp.y + vp.d;
+		viewp.x = Math.round(vp.a * worldp.x + vp.b);
+        viewp.y = Math.round(vp.c * worldp.y + vp.d);
 	}
 
 	WorldpolytoViewpoly(vp: Viewport, wpoly: Polygon, vpoly: Polygon): boolean
@@ -404,8 +394,11 @@ export class Worldport {
 
 		const len = wpoly.points.length;
 		for (let i=0; i<len; i+=2) {
-			vpoly.points[i]   = vp.a * wpoly.points[i] + vp.b;
-			vpoly.points[i+1] = vp.c * wpoly.points[i+1] + vp.d
+			// INT it:
+			// vpoly.points[i]   = vp.a * wpoly.points[i] + vp.b;
+			// vpoly.points[i+1] = vp.c * wpoly.points[i+1] + vp.d
+			vpoly.points[i] = Math.round(vp.a * wpoly.points[i] + vp.b);
+            vpoly.points[i + 1] = Math.round(vp.c * wpoly.points[i + 1] + vp.d);
 		}
 		return true;
 	}
@@ -545,6 +538,23 @@ export class Viewport {
 		return true;
 	}
 }		// end class Viewport
+
+
+// export class Rectangle {
+// 	public x = 0;
+// 	public y = 0;
+// 	public width = 0;
+// 	public height = 0;
+
+// 	constructor() {}
+
+// 	contains(x: number, y: number): boolean {
+// 		const right = this.x + this.width;
+// 		const top = this.y + this.height;
+
+// 		return x >= this.x && x <= right && y >= this.y && y <= top;
+// 	}
+// }
 
 
 // /**

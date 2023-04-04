@@ -1,5 +1,6 @@
-// import { Polygon, Rectangle, Point } from "../../node_modules/pixi.js";
-import { Rectangle } from "../../node_modules/pixi.js/dist/pixi.js";
+// import { Polygon, Rectangle, Point } from "../../node_modules/pixi.js/dist/pixi.js";
+// import { Rectangle } from "../../node_modules/pixi.js/dist/pixi.mjs";
+import { Rectangle } from "pixi.js";
 //****************************************************************************
 // ----- general information -----
 //
@@ -38,15 +39,42 @@ import { Rectangle } from "../../node_modules/pixi.js/dist/pixi.js";
 //  *		@version	1.0
 //  */
 export class VectorShape {
-
+    static COS_OFFSET = 0; // offset into trig_vals
+    static SIN_OFFSET = 1; // offset into trig_vals
+    // npoints not needed in the typescript implentation.
+    // protected npoints: number;				// number of points in following Poly's
+    world_pts; // world coordinates for this shape
+    screen_pts; // transformed screen coordinates
+    rot_pts; // rotated, world coordinates
+    bounds; // bounding rectangle (for world_pts)
+    aboutx = 0; // geometrical center of shape, x-coord.
+    abouty = 0; // geometrical center of shape, y-coord.
+    num_rotations = 0; // number of rotations per 360 deg.
+    trig_vals; // cosine and sine for each num_rotation.
+    position; // rotation position
+    // TODO: Should this really be a member of VectorShape? Should be able to map this world shape through any number of viewports, possibly dynamically at run-time.
+    vp;
+    // /**
+    //  *		VectorShape(Viewport)	--	This is VectorShape's simplest constructor.
+    //  *		Classes extending VectorShape which call this constructor must setup
+    //  *		the polygons themselves.
+    //  */
+    // constructor(vp: Viewport)
+    // {
+    // 	this.vp = vp;
+    // }
+    // /**
+    //  *		VectorShape(Polygon, Viewport)	--	This constructor is called for
+    //  *		VectorShape's that have pre-determined polygons.  If a VectorShape
+    //  *		generates its own polygons (say, randomly), then it calls the simpler
+    //  *		constructor.  In this latter case, the class extending VectorShape
+    //  *		must call SetupPoints() when it has a polygon available.
+    //  */
     constructor(pts, vp, nrotate) {
-        this.aboutx = 0; // geometrical center of shape, x-coord.
-        this.abouty = 0; // geometrical center of shape, y-coord.
-        this.num_rotations = 0; // number of rotations per 360 deg.
         this.vp = vp;
-        this.world_pts = pts.clone();
-        this.screen_pts = pts.clone();
-        this.rot_pts = pts.clone();
+        this.world_pts = structuredClone(pts);
+        this.screen_pts = structuredClone(pts);
+        this.rot_pts = structuredClone(pts);
         this.vp.wp.WorldpolytoViewpoly(this.vp, this.world_pts, this.screen_pts); // setup screen_pts
         this.bounds = new Rectangle();
         this.calc_bounds();
@@ -62,33 +90,10 @@ export class VectorShape {
         }
     }
     // /**
-    //  *		VectorShape.SetupPoints()	--	Allocate and initialize the various
-    //  *		point arrays, bounding rectangle, and ALL instance variables EXCEPT
-    //  *		the Viewport.
+    //  *		VectorShape.calc_bounds - Re-calculate the bounding rectangle for
+    //  *		the world polygon and its geometrical center.
     //  */
-    // SetupPoints(pts: Polygon, nrotate: number)
-    // {
-    // 	// npoints = pts.npoints; The typescript version of this class doesn't need this.
-    // 	this.world_pts = pts.clone();
-    // 	this.screen_pts = pts.clone();
-    // 	this.rot_pts = pts.clone();
-    // 	this.vp.wp.WorldpolytoViewpoly(this.vp, this.world_pts, this.screen_pts);	// setup screen_pts
-    // 	this.bounds = new Rectangle();
-    // 	this.calc_bounds();
-    // 	this.position = 0;
-    // 	// Setup rotational variables if this VectorShape will need them
-    // 	if ( nrotate > 0 ) {
-    // 		this.num_rotations = nrotate;
-    // 		for (let i=0; i<this.num_rotations; i++) {
-    // 			let radians = this.vp.wp.toradians(360 - i*(360/this.num_rotations));
-    // 			this.trig_vals.push( [Math.cos(radians), Math.sin(radians)] );
-    // 		}
-    // 	}
-    // }
-    /**
-     *		VectorShape.calc_bounds - Re-calculate the bounding rectangle for
-     *		the world polygon and its geometrical center.
-     */
+    // TODO: Make this method more generic - pass in Polygon and Rectange?
     calc_bounds() {
         let maxx = 0;
         let maxy = 0;
@@ -100,23 +105,22 @@ export class VectorShape {
         for (let i = 2; i < len; i += 2) {
             const x = this.world_pts.points[i];
             const y = this.world_pts.points[i + 1];
-            if (x < this.bounds.x) {
+            if (x < this.bounds.x)
                 this.bounds.x = x;
-            }
-            if (y < this.bounds.y) {
+            if (y < this.bounds.y)
                 this.bounds.y = y;
-            }
-            if (x > maxx) {
+            if (x > maxx)
                 maxx = x;
-            }
-            if (y > maxy) {
+            if (y > maxy)
                 maxy = y;
-            }
         }
         this.bounds.width = maxx - this.bounds.x;
         this.bounds.height = maxy - this.bounds.y;
-        this.aboutx = this.bounds.x + this.bounds.width / 2;
-        this.abouty = this.bounds.y + this.bounds.height / 2;
+        // INT it:
+        // this.aboutx = this.bounds.x + this.bounds.width/2;
+        // this.abouty = this.bounds.y + this.bounds.height/2;
+        this.aboutx = this.bounds.x + Math.round(this.bounds.width / 2);
+        this.abouty = this.bounds.y + Math.round(this.bounds.height / 2);
     }
     // /**
     //  *		move() -- Move this shape by translating and rotating (if necessary)
@@ -196,8 +200,6 @@ export class VectorShape {
         return (false);
     }
 } // end class VectorShape
-VectorShape.COS_OFFSET = 0; // offset into trig_vals
-VectorShape.SIN_OFFSET = 1; // offset into trig_vals
 /**
  *		class Worldport -- Implement a 2d World coordinate system.
  *		This system is based on integers and provides methods for
@@ -210,6 +212,10 @@ VectorShape.SIN_OFFSET = 1; // offset into trig_vals
  *		@version	1.0
  */
 export class Worldport {
+    xwl;
+    xwr;
+    ywb;
+    ywt;
     // constructor(xmin, xmax, ymin, ymax)
     constructor(xwl, xwr, ywb, ywt) {
         this.xwl = xwl;
@@ -251,8 +257,11 @@ export class Worldport {
         const sintheta = Math.sin(rad);
         const x = p.x;
         const y = p.y;
-        p.x = x * costheta - y * sintheta;
-        p.y = x * sintheta + y * costheta;
+        // INT it:
+        // p.x = x * costheta - y * sintheta;
+        // p.y = x * sintheta + y * costheta;
+        p.x = Math.round(x * costheta - y * sintheta);
+        p.y = Math.round(x * sintheta + y * costheta);
     }
     static rotatepoly_by_angle(poly, angle_degrees) {
         const rad = Worldport.toradians(angle_degrees);
@@ -262,23 +271,32 @@ export class Worldport {
         for (let i = 0; i < len; i += 2) {
             const x = poly.points[i];
             const y = poly.points[i + 1];
-            poly.points[i] = x * costheta - y * sintheta;
-            poly.points[i + 1] = x * sintheta + y * costheta;
+            // INT it:
+            // poly.points[i] = x * costheta - y * sintheta;
+            // poly.points[i+1] = x * sintheta + y * costheta;
+            poly.points[i] = Math.round(x * costheta - y * sintheta);
+            poly.points[i + 1] = Math.round(x * sintheta + y * costheta);
         }
     }
     static rotatepoint(p, cost, sint) {
         const x = p.x;
         const y = p.y;
-        p.x = x * cost - y * sint;
-        p.y = x * sint + y * cost;
+        // INT it:
+        // p.x = x * cost - y * sint;
+        // p.y = x * sint + y * cost;
+        p.x = Math.round(x * cost - y * sint);
+        p.y = Math.round(x * sint + y * cost);
     }
     static rotatepoly(poly, cost, sint) {
         const len = poly.points.length;
         for (let i = 0; i < len; i += 2) {
             const x = poly.points[i];
             const y = poly.points[i + 1];
-            poly.points[i] = x * cost - y * sint;
-            poly.points[i + 1] = x * sint + y * cost;
+            // INT it:
+            // poly.points[i] = x * cost - y * sint;
+            // poly.points[i+1] = x * sint + y * cost;
+            poly.points[i] = Math.round(x * cost - y * sint);
+            poly.points[i + 1] = Math.round(x * sint + y * cost);
         }
     }
     static copypoly(polyfrom, polyto) {
@@ -291,16 +309,22 @@ export class Worldport {
         return true;
     }
     Worldpoint2Viewpoint(vp, worldp, viewp) {
-        viewp.x = vp.a * worldp.x + vp.b;
-        viewp.y = vp.c * worldp.y + vp.d;
+        // INT it:
+        // viewp.x = vp.a * worldp.x + vp.b;
+        // viewp.y = vp.c * worldp.y + vp.d;
+        viewp.x = Math.round(vp.a * worldp.x + vp.b);
+        viewp.y = Math.round(vp.c * worldp.y + vp.d);
     }
     WorldpolytoViewpoly(vp, wpoly, vpoly) {
         if (wpoly.points.length != vpoly.points.length)
             return false;
         const len = wpoly.points.length;
         for (let i = 0; i < len; i += 2) {
-            vpoly.points[i] = vp.a * wpoly.points[i] + vp.b;
-            vpoly.points[i + 1] = vp.c * wpoly.points[i + 1] + vp.d;
+            // INT it:
+            // vpoly.points[i]   = vp.a * wpoly.points[i] + vp.b;
+            // vpoly.points[i+1] = vp.c * wpoly.points[i+1] + vp.d
+            vpoly.points[i] = Math.round(vp.a * wpoly.points[i] + vp.b);
+            vpoly.points[i + 1] = Math.round(vp.c * wpoly.points[i + 1] + vp.d);
         }
         return true;
     }
@@ -318,6 +342,15 @@ export class Worldport {
 //  *		@version	1.0
 //  */
 export class Viewport {
+    wp;
+    xvl;
+    xvr;
+    yvb;
+    yvt;
+    a;
+    b;
+    c;
+    d;
     // protected aspectratio: number;
     // constructor(wp, xmin, xmax, ymin, ymax)
     constructor(wp, xvl, xvr, yvb, yvt) {
@@ -405,6 +438,18 @@ export class Viewport {
         return true;
     }
 } // end class Viewport
+// export class Rectangle {
+// 	public x = 0;
+// 	public y = 0;
+// 	public width = 0;
+// 	public height = 0;
+// 	constructor() {}
+// 	contains(x: number, y: number): boolean {
+// 		const right = this.x + this.width;
+// 		const top = this.y + this.height;
+// 		return x >= this.x && x <= right && y >= this.y && y <= top;
+// 	}
+// }
 // /**
 //  *		class Line -- Define a line as two endpoints.  Provide
 //  *		methods for testing line intersections geometrically.
