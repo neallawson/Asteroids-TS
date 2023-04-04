@@ -8,6 +8,7 @@
 import { Renderer, Container, Ticker, Graphics } from 'pixi.js';
 import { GameConstants } from './classes/GameConstants.js';
 import { Rock } from './classes/Rock.js';
+import { Ship } from './classes/Ship.js';
 import { Worldport, Viewport } from './classes/Engine2D.js';
 import { GameUtils } from './classes/GameUtils.js';
 
@@ -27,15 +28,10 @@ const renderer = new Renderer({
 })
 // renderer.view.style.position = absolute;
 
-window.addEventListener('resize', resize);
-function resize() {
-    _w = window.innerWidth;
-    _h = window.innerHeight;
-    renderer.resize(_w, _h);
-    view_port?.resize(0, _w, _h, 0);
-}
-
+// High-level pixi.js objects (includes renderer)
 const stage = new Container();
+const g = new Graphics();
+stage.addChild(g);
 
 // Setup Engine2D objects
 const world_port = new Worldport(GameConstants.WORLD_MINX, GameConstants.WORLD_MAXX, GameConstants.WORLD_MINY, GameConstants.WORLD_MAXY);
@@ -43,7 +39,7 @@ const world_port = new Worldport(GameConstants.WORLD_MINX, GameConstants.WORLD_M
 // const view_port = new Viewport(world_port, 0, GameConstants.SCREEN_WIDTH, GameConstants.SCREEN_HEIGHT, 0);
 const view_port = new Viewport(world_port, 0, _w, _h, 0);
 
-// Create Game Objects
+// Create Rocks
 let rocks: Rock[] = [];
 for (let i=0; i<20; i++) {
     let x = GameUtils.one2n(100);
@@ -62,25 +58,24 @@ for (let i=0; i<20; i++) {
     let begx = GameUtils.one2n(9000);
     let begy = GameUtils.one2n(9000);
     let num_rotations = GameUtils.one2n(64);
-// console.log('x: '+x + ', xvel: '+xvel+', yvel: '+yvel+', begx: '+begx+', begy: '+begy+', num rotations: '+num_rotations);
 
     // BUG: Bombs when num_rotations is 0.
     let rock = new Rock(view_port, size, begx, begy, xvel, yvel, num_rotations);
     // console.log(rock);
     rocks.push(rock);
 }
-// renderer.render(stage);
 
-let g = new Graphics();
-stage.addChild(g);
+// Create ship
+const ship = new Ship(view_port, _w/2, _h/2);
 
 // MAIN GAME LOOP
+let game_alive = true;
 const ticker = new Ticker();
 ticker.maxFPS  = 60;
 ticker.add(main_loop);
 ticker.start();
 
-function main_loop(delta: number) {
+function main_loop(delta: number): void {
     // Draw black background
     g.clear();
 
@@ -88,14 +83,69 @@ function main_loop(delta: number) {
     rocks.forEach( (rock) => {
         rock.tick();
     });
-
     // Draw rocks
     rocks.forEach( (rock) => {
         rock.paint(g);
     });
+
+    // Tick/draw ship
+    ship.tick();
+    ship.paint(g);
+
     renderer.render(stage);
+
+    if (!game_alive) {
+        ticker.stop();
+        g.destroy();
+        return;
+    }
 // console.log("FPS: " + ticker.FPS);
 }
 
-// let p = new Polygon(0,300, 50,100, 300,0, 650,100, 670,250, 800,400,
-//     750,650, 600,800, 400,700, 150,750, 250,500, 0,300);
+
+// Event Handlers Handle window resize and keyboard events:
+
+window.addEventListener('resize', resize);
+function resize() {
+    _w = window.innerWidth;
+    _h = window.innerHeight;
+    renderer.resize(_w, _h);
+    view_port?.resize(0, _w, _h, 0);
+}
+
+window.addEventListener("keydown", keyDownHandler);
+window.addEventListener("keyup", keyUpHandler);
+function keyDownHandler(event: KeyboardEvent) {
+    if (event.key !== undefined) {
+        switch(event.key) {
+            case "ArrowLeft":
+            case "ArrowRight":
+            case "ArrowUp":
+            case "ArrowDown":
+            case "space":
+                ship.handleKeyEvent('keydown', event.key)
+                break;
+
+            case "Escape":
+                game_alive = false;
+                break;
+            default:
+        }
+    }
+}
+function keyUpHandler(event: KeyboardEvent) {
+    if (event.key !== undefined) {
+        switch(event.key) {
+            case "ArrowLeft":
+            case "ArrowRight":
+            case "ArrowUp":
+            case "ArrowDown":
+            case "space":
+                ship.handleKeyEvent('keyup', event.key)
+                break;
+            // case "Escape":
+            //     break;
+            default:
+          }
+    }
+}

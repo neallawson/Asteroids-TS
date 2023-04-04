@@ -58,7 +58,7 @@ export class VectorShape {
 	public abouty: number = 0;		// geometrical center of shape, y-coord.
 	protected num_rotations: number = 0;// number of rotations per 360 deg.
 	protected trig_vals: number[][];	// cosine and sine for each num_rotation.
-	protected position: number;			// rotation position
+	public position: number;			// rotation position
 	// TODO: Should this really be a member of VectorShape? Should be able to map this world shape through any number of viewports, possibly dynamically at run-time.
 	vp: Viewport;
 

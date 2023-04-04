@@ -1,6 +1,6 @@
 // import { Graphics, Polygon } from "../../node_modules/pixi.js";
 import { Polygon, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
-// import { Polygon, Point } from "pixi.js";
+// import { Polygon } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport } from "./Engine2D.js";
 import { GameUtils } from "./GameUtils.js";
@@ -38,7 +38,7 @@ export class Rock extends VectorMover {
     // 								750, 600, 400, 150, 250, 0];
     // private static Large_y = [300, 100, 0, 100, 250, 400,
     // 								650, 800, 700, 750, 500, 300];
-    static LargePolygon = new Polygon(Rock.Large_rock_data);
+    static Large_rock_poly = new Polygon(Rock.Large_rock_data);
     static R_LARGE = 0;
     static R_MEDIUM = 1;
     static R_SMALL = 2;
@@ -62,7 +62,7 @@ export class Rock extends VectorMover {
         // rotation direction
         this.rot_dir = GameUtils.odds(50) ? Rock.ROT_LEFT : Rock.ROT_RIGHT;
         // setup our VectorShape...scale if necessary...add to super() via inherited method.
-        const vecshape = new VectorShape(Rock.LargePolygon, vp, num_rotations);
+        const vecshape = new VectorShape(Rock.Large_rock_poly, vp, num_rotations);
         if (size == Rock.R_MEDIUM)
             Worldport.scalepoly(vecshape.world_pts, 0.6, 0.6);
         else if (size == Rock.R_SMALL)
@@ -87,13 +87,11 @@ export class Rock extends VectorMover {
         g.lineStyle(2, 0xffffff, 1);
         g.drawPolygon(this.vecshape.screen_pts.points);
         g.closePath();
-        let vx = 0;
-        let vy = 0;
-        let viewp = new Point(0, 0);
-        let worldp = new Point(this.vecshape.aboutx, this.vecshape.abouty);
-        g.lineStyle(2, 0xdd0000, 1);
-        this.vp.Worldpoint2Viewpoint(worldp, viewp);
-        g.drawCircle(viewp.x, viewp.y, 5);
+        // let viewp = new Point(0, 0);
+        // let worldp = new Point(this.vecshape!.aboutx, this.vecshape!.abouty);
+        // g.lineStyle(2, 0xdd0000, 1);
+        // this.vp.Worldpoint2Viewpoint(worldp, viewp);
+        // g.drawCircle(viewp.x, viewp.y, 5);
     }
     die() {
         super.die();
