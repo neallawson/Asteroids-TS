@@ -1,4 +1,4 @@
-// import { Polygon } from "../../node_modules/pixi.js/dist/pixi.mjs";
+// import { Polygon, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
 import { Graphics, Polygon, Point } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
@@ -92,13 +92,16 @@ export class Ship extends VectorMover {
                 // Fire one shot from the gun:
                 case " ":
 					const vs = this.vecshape!;
+					const vs_sin = vs.trig_vals[vs.position][VectorShape.SIN_OFFSET];
+					const vs_cos = vs.trig_vals[vs.position][VectorShape.COS_OFFSET];
+// console.log("xvel: "+this.xvel+" yvel: "+this.yvel+" sin: " + vs_sin+" cos: "+vs_cos);
 					this.add_bullet(
 						new Bullet(this.vp,
 							vs.rot_pts.points[0],
 							vs.rot_pts.points[1],
 							this.xvel, this.yvel,
-							vs.trig_vals[vs.position][VectorShape.COS_OFFSET],
-							vs.trig_vals[vs.position][VectorShape.SIN_OFFSET])
+							vs.trig_vals[vs.position][VectorShape.SIN_OFFSET],
+							vs.trig_vals[vs.position][VectorShape.COS_OFFSET])
 					);
                     break;
             }
@@ -148,7 +151,7 @@ export class Ship extends VectorMover {
 		if ( this.key_rotright )
 			this.rotate_right();
 
-		// thrust
+		// thrust	
 		if ( this.key_thrust ) {
 			let i = this.xvel - Math.round(this.vecshape!.xthrust(Ship.POWER));
 			if ( (i > 0 && i <= Ship.MAX_SPEED) || (i < 0 && i > -Ship.MAX_SPEED) )
@@ -181,6 +184,13 @@ export class Ship extends VectorMover {
         g.lineStyle(2, 0x00ffff, 1);
 		g.drawPolygon(this.vecshape!.screen_pts.points);
 		g.closePath();
+
+		// const worldp=new Point(	this.vecshape!.rot_pts.points[0],
+		// 					this.vecshape!.rot_pts.points[1]);
+		// let viewp = new Point(0, 0);
+		// this.vp.Worldpoint2Viewpoint(worldp, viewp);
+		// g.lineStyle(2, 0xdd0000, 1);
+		// g.drawCircle(viewp.x, viewp.y, 5);
 	}
 
 	centerShip(): void

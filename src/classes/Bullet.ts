@@ -46,10 +46,9 @@ export class Bullet extends Mover {
         super(vp.wp, Mover.TOPO_WRAP, x, y, xvelocity, yvelocity);
         this.vp = vp;
 
-		// this.xvel = Math.round(xvelocity - Bullet.BULLET_SPEED*cos);
-		// this.yvel = Math.round(yvelocity + Bullet.BULLET_SPEED*sin);
-		this.xvel = xvelocity + Bullet.BULLET_SPEED*cos;
-		this.yvel = yvelocity + Bullet.BULLET_SPEED*sin;
+		this.xvel = Math.round(xvelocity - Bullet.BULLET_SPEED*sin);
+		this.yvel = Math.round(yvelocity + Bullet.BULLET_SPEED*cos);
+// console.log("xvel: "+this.xvel+" yvel: "+this.yvel);
 		this.cur_tick = 0;
         this.world_point = new Point(x, y);
         this.view_point  = new Point(x, y);
@@ -63,7 +62,7 @@ export class Bullet extends Mover {
 			// apply x and y velocities
 			// Old: (If topology relocated m_x or m_y, don't apply velocity.) Why?
             this.x += this.xvel;
-            this.y += this.xvel;
+            this.y += this.yvel;
 
 			// if ( m_x != b_pw.x )
 			// 	b_pw.x = m_x;
