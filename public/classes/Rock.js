@@ -42,6 +42,7 @@ export class Rock extends VectorMover {
     static R_LARGE = 0;
     static R_MEDIUM = 1;
     static R_SMALL = 2;
+    static ROCKS_MAX_SPEED = 30;
     static ROT_LEFT = 0;
     static ROT_RIGHT = 1;
     static R_LSCORE = 50;
@@ -93,8 +94,26 @@ export class Rock extends VectorMover {
         // this.vp.Worldpoint2Viewpoint(worldp, viewp);
         // g.drawCircle(viewp.x, viewp.y, 5);
     }
-    die() {
+    dieAndSpawn(addrock) {
         super.die();
-        // this.graphics.destroy();
+        let new_sz = -1;
+        if (this.size === Rock.R_LARGE)
+            new_sz = Rock.R_MEDIUM;
+        else if (this.size === Rock.R_MEDIUM)
+            new_sz = Rock.R_SMALL;
+        if (new_sz != -1) {
+            addrock(new Rock(this.vp, new_sz, // size
+            this.x, this.y, // x, y
+            GameUtils.one2n(Rock.ROCKS_MAX_SPEED), // xvel
+            GameUtils.one2n(Rock.ROCKS_MAX_SPEED), // yvel
+            GameUtils.one2n(64)) // num_rotations
+            );
+            addrock(new Rock(this.vp, new_sz, // size
+            this.x, this.y, // x, y
+            GameUtils.one2n(Rock.ROCKS_MAX_SPEED), // xvel
+            GameUtils.one2n(Rock.ROCKS_MAX_SPEED), // yvel
+            GameUtils.one2n(64)) // num_rotations
+            );
+        }
     }
 }

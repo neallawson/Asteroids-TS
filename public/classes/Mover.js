@@ -61,6 +61,9 @@ export class Mover {
     die() {
         this.alive = false;
     }
+    isAlive() {
+        return this.alive;
+    }
     startRound() {
         this.xvel = 0;
         this.yvel = 0;
@@ -136,7 +139,7 @@ export class VectorMover extends Mover {
     tick() {
         // Call Mover.tick():  apply topology to x, y and xvel, yvel
         super.tick();
-        // Compute Movement delta's and apply to vm_vecshape
+        // Compute Movement delta's and apply to vm_vecshape. Manage oldx, oldy.
         let dx = this.xvel;
         let dy = this.yvel;
         if (this.topology == Mover.TOPO_WRAP) {

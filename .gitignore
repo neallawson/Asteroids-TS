@@ -3,6 +3,9 @@
 /node_modules
 /old_java
 
+# Scratch/tmp
+/tmp
+
 # Logs
 logs
 *.log

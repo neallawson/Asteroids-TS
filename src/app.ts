@@ -1,14 +1,10 @@
-// import { Polygon } from 'pixi.js';
-
-// let p = new Polygon(0,300, 50,100, 300,0, 650,100, 670,250, 800,400,
-//     750,650, 600,800, 400,700, 150,750, 250,500, 0,300);
-// console.log(p);
-
 // import { Renderer, Container, Ticker, Graphics } from '../node_modules/pixi.js/dist/pixi.mjs';
 import { Renderer, Container, Ticker, Graphics } from 'pixi.js';
 import { GameConstants } from './classes/GameConstants.js';
 import { Rock } from './classes/Rock.js';
 import { Ship } from './classes/Ship.js';
+import { Bullet } from './classes/Bullet.js';
+import { Explosion } from './classes/Explosion.js';
 import { Worldport, Viewport } from './classes/Engine2D.js';
 import { GameUtils } from './classes/GameUtils.js';
 
@@ -39,8 +35,12 @@ const world_port = new Worldport(GameConstants.WORLD_MINX, GameConstants.WORLD_M
 // const view_port = new Viewport(world_port, 0, GameConstants.SCREEN_WIDTH, GameConstants.SCREEN_HEIGHT, 0);
 const view_port = new Viewport(world_port, 0, _w, _h, 0);
 
-// Create Rocks
+// Containers for rocks, bullets, explosions
 let rocks: Rock[] = [];
+let bullets: Bullet[] = [];
+let explosions: Explosion[] = [];
+
+// Create Rocks
 for (let i=0; i<20; i++) {
     let x = GameUtils.one2n(100);
     let size = Rock.R_LARGE;
@@ -49,14 +49,14 @@ for (let i=0; i<20; i++) {
     else if (x >= 30 && x < 60)
         size = Rock.R_SMALL;
 
-    let xvel = GameUtils.one2n(30);
-    let yvel = GameUtils.one2n(30);
+    let xvel = GameUtils.one2n(Rock.ROCKS_MAX_SPEED);
+    let yvel = GameUtils.one2n(Rock.ROCKS_MAX_SPEED);
     if (GameUtils.odds(50))
         xvel *= -1;
     if (GameUtils.odds(50))
         yvel *= -1;
-    let begx = GameUtils.one2n(9000);
-    let begy = GameUtils.one2n(9000);
+    let begx = GameUtils.one2n(GameConstants.WORLD_MAXX-1);
+    let begy = GameUtils.one2n(GameConstants.WORLD_MAXY-1);
     let num_rotations = GameUtils.one2n(64);
 
     // BUG: Bombs when num_rotations is 0.
@@ -66,12 +66,36 @@ for (let i=0; i<20; i++) {
 }
 
 // Create ship
-const ship = new Ship(view_port, _w/2, _h/2);
+const ship = new Ship(view_port, add_bullet);
+
+// Manage adding rocks, bullets, and explosions.
+function add_rock(new_rock: Rock): void
+{
+    for (let i=0; i<rocks.length; i++) {
+        if (!rocks[i].isAlive()) {
+            rocks[i] = new_rock;
+            return;
+        }
+    }
+    rocks.push(new_rock);
+}
+
+function add_bullet(new_bullet: Bullet): void
+{
+    for (let i=0; i<bullets.length; i++) {
+        if (!bullets[i].isAlive()) {
+            bullets[i] = new_bullet;
+            return;
+        }
+    }
+    bullets.push(new_bullet);
+}
+
 
 // MAIN GAME LOOP
 let game_alive = true;
 const ticker = new Ticker();
-ticker.maxFPS  = 60;
+ticker.maxFPS  = GameConstants.FPS;
 ticker.add(main_loop);
 ticker.start();
 
@@ -79,19 +103,60 @@ function main_loop(delta: number): void {
     // Draw black background
     g.clear();
 
-    // Tick rocks
-    rocks.forEach( (rock) => {
-        rock.tick();
-    });
-    // Draw rocks
-    rocks.forEach( (rock) => {
-        rock.paint(g);
-    });
-
-    // Tick/draw ship
+    // Tick ship, rocks, bullets, explosions
     ship.tick();
-    ship.paint(g);
+    rocks.forEach( (rock) => {
+        if (rock.isAlive())
+            rock.tick();
+    });
+    bullets.forEach( (bullet) => {
+        if (bullet.isAlive())
+            bullet.tick();
+    });
+    explosions.forEach( (explosion) => {
+        if (explosion.isAlive())
+            explosion.tick();
+    });
 
+    // Check collisions: rock-bullet
+    let rlen = rocks.length;
+    for (let rock_ctr=0; rock_ctr<rlen; rock_ctr++) {
+        const rock = rocks[rock_ctr];
+        if (!rock.isAlive())
+            continue;
+
+        let blen = bullets.length;
+        for (let bullet_ctr=0; bullet_ctr<blen; bullet_ctr++) {
+            let bullet = bullets[bullet_ctr];
+            if (!bullet.isAlive())
+                continue;
+
+            if (rock.vecshape!.bounds.contains(bullet.x, bullet.y)) {
+                bullet.die();
+                rock.dieAndSpawn(add_rock);
+                break;
+            }
+        }
+    }
+
+    
+    // Draw ship, rocks, bullets, explosions
+    if (ship.isAlive())
+        ship.paint(g);
+    rocks.forEach( (rock) => {
+        if (rock.isAlive())
+            rock.paint(g);
+    });
+    bullets.forEach( (bullet) => {
+        if (bullet.isAlive())
+            bullet.paint(g);
+    });
+    explosions.forEach( (explosion) => {
+        if (explosion.isAlive())
+            explosion.paint(g);
+    });
+
+    // Render the frame to the screen
     renderer.render(stage);
 
     if (!game_alive) {
@@ -117,12 +182,13 @@ window.addEventListener("keydown", keyDownHandler);
 window.addEventListener("keyup", keyUpHandler);
 function keyDownHandler(event: KeyboardEvent) {
     if (event.key !== undefined) {
+        console.log("Keydown: <" + event.key + ">");
         switch(event.key) {
             case "ArrowLeft":
             case "ArrowRight":
             case "ArrowUp":
             case "ArrowDown":
-            case "space":
+            case " ":
                 ship.handleKeyEvent('keydown', event.key)
                 break;
 

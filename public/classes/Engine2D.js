@@ -84,7 +84,7 @@ export class VectorShape {
         if (nrotate > 0) {
             this.num_rotations = nrotate;
             for (let i = 0; i < this.num_rotations; i++) {
-                let radians = Worldport.toradians(360 - i * (360 / this.num_rotations));
+                const radians = Worldport.toradians(360 - i * (360 / this.num_rotations));
                 this.trig_vals.push([Math.cos(radians), Math.sin(radians)]);
             }
         }
@@ -255,10 +255,10 @@ export class Worldport {
         const x = p.x;
         const y = p.y;
         // INT it:
-        // p.x = x * costheta - y * sintheta;
-        // p.y = x * sintheta + y * costheta;
-        p.x = Math.round(x * costheta - y * sintheta);
-        p.y = Math.round(x * sintheta + y * costheta);
+        p.x = x * costheta - y * sintheta;
+        p.y = x * sintheta + y * costheta;
+        // p.x = Math.round(x * costheta - y * sintheta);
+        // p.y = Math.round(x * sintheta + y * costheta);
     }
     static rotatepoly_by_angle(poly, angle_degrees) {
         const rad = Worldport.toradians(angle_degrees);
@@ -269,20 +269,20 @@ export class Worldport {
             const x = poly.points[i];
             const y = poly.points[i + 1];
             // INT it:
-            // poly.points[i] = x * costheta - y * sintheta;
-            // poly.points[i+1] = x * sintheta + y * costheta;
-            poly.points[i] = Math.round(x * costheta - y * sintheta);
-            poly.points[i + 1] = Math.round(x * sintheta + y * costheta);
+            poly.points[i] = x * costheta - y * sintheta;
+            poly.points[i + 1] = x * sintheta + y * costheta;
+            // poly.points[i] = Math.round(x * costheta - y * sintheta);
+            // poly.points[i + 1] = Math.round(x * sintheta + y * costheta);
         }
     }
     static rotatepoint(p, cost, sint) {
         const x = p.x;
         const y = p.y;
         // INT it:
-        // p.x = x * cost - y * sint;
-        // p.y = x * sint + y * cost;
-        p.x = Math.round(x * cost - y * sint);
-        p.y = Math.round(x * sint + y * cost);
+        p.x = x * cost - y * sint;
+        p.y = x * sint + y * cost;
+        // p.x = Math.round(x * cost - y * sint);
+        // p.y = Math.round(x * sint + y * cost);
     }
     static rotatepoly(poly, cost, sint) {
         const len = poly.points.length;
@@ -290,10 +290,10 @@ export class Worldport {
             const x = poly.points[i];
             const y = poly.points[i + 1];
             // INT it:
-            // poly.points[i] = x * cost - y * sint;
-            // poly.points[i+1] = x * sint + y * cost;
-            poly.points[i] = Math.round(x * cost - y * sint);
-            poly.points[i + 1] = Math.round(x * sint + y * cost);
+            poly.points[i] = x * cost - y * sint;
+            poly.points[i + 1] = x * sint + y * cost;
+            // poly.points[i] = Math.round(x * cost - y * sint);
+            // poly.points[i + 1] = Math.round(x * sint + y * cost);
         }
     }
     static copypoly(polyfrom, polyto) {

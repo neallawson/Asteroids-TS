@@ -1,14 +1,13 @@
 import { Polygon } from "../../node_modules/pixi.js/dist/pixi.mjs";
 // import { Polygon } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
-import { VectorShape } from "./Engine2D.js";
+import { VectorShape, Worldport } from "./Engine2D.js";
+import { Bullet } from './Bullet.js';
 import { GameConstants } from "./GameConstants.js";
 //****************************************************************************
-// ----- general information -----
-//
 // Ship.java	--	The moving ship
 //
-// Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
+// Written by:			Neal Lawson, e-mail: nlawson@uga.icad.edu
 // Initial Release:		01/29/97.
 //
 // Copyright (c) Neal Lawson, 1996
@@ -17,29 +16,6 @@ import { GameConstants } from "./GameConstants.js";
 // v 1.10a, 05/07/97, Ship now extends VectorMover...cleaned up.
 // v 1.00a,	12/20/96 - 01/29/97,	Initial Classes and testing.
 //
-// ----- history and repairs -----
-// 05/07/97 -- 05/14/97, v 1.10a:
-//
-//	05/14/97 --  Added code to support pausing.  Causes a game
-//				lockup when last rock is destroyed.  Commented out.
-//				Only affects the pause code in handleEvent().
-//05/07/94 --	Ship now extends VectorMover instead of Mover.
-//				Modified code to support this change:
-//				a. s_vecshape -> vm_vecshape in VectorMover
-//				b. removed delta computations in tick(), remove s_x, s_y
-//				c. removed rapid repeat FIRE code.
-// 02/05/97 -- Implemented new keyboard management, and steer() method.
-//             This allows for auto-repeating of the keyboard for rotation
-//             and thrust.  Had to turn down the thrust POWER a bit from
-//             30 to 15.  Also changed the SHIP_ROT (ship rotations) from
-//             16 to 32.  Added the keyboard boolean instance variables.
-//             Also changed ship color from cyan to white.
-// 02/04/97 -- Fixed bug in the FADE.  Failed to check negative directions.
-//
-// ----- Description -----
-// Mover is a simple class to define what a moving game object needs
-// in order to be functional.  Many of the concepts of this class were 
-// taken from Chris Boyke's game, SpaceWar.
 //****************************************************************************
 export class Ship extends VectorMover {
     // Movement commands:  LEFT, RIGHT, THRUST, FIRE
@@ -47,9 +23,9 @@ export class Ship extends VectorMover {
     // static RIGHT = Event.RIGHT;
     // static THRUST = Event.UP;
     // static FIRE = ' ';
-    static SHIP_ROT = 32; // Number of rotates() for full rotation (was 16)
-    static POWER = 15; // World-coord:  Thrust per press (was 30)
-    static FADE = 1; // fade-per-tick deduction
+    static SHIP_ROT = 64; // Number of rotates() for full rotation (was 16)
+    static POWER = 5; // World-coord:  Thrust per press (was 30)
+    static FADE = 0.3; // fade-per-tick deduction
     static MAX_SPEED = 60; // fastest this.xvel and this.yvel allowed
     // static data for building Ship's VectorShape
     // static final int Ship_x[] = {125, 0, 93, 93, 156, 156, 250, 125};
@@ -64,13 +40,16 @@ export class Ship extends VectorMover {
     key_rotright = false;
     key_thrust = false;
     key_fire = false;
-    constructor(vp, x, y) {
-        super(vp, Mover.TOPO_WRAP, x, y, 0, 0);
+    add_bullet;
+    constructor(vp, add_bullet) {
+        super(vp, Mover.TOPO_WRAP, 0, 0, 0, 0);
         this.num_rotations = Ship.SHIP_ROT;
+        this.add_bullet = add_bullet;
         // setup our VectorShape
         const vecshape = new VectorShape(Ship.ship_poly, this.vp, Ship.SHIP_ROT);
         this.addVectorShape(vecshape);
         // Translate (move) this shape to screen center
+        Worldport.scalepoly(vecshape.world_pts, 0.7, 0.7); // Shrink ship a bit.
         this.centerShip();
         // Worldport.translatepoly(vecshape.world_pts, x, y);
     }
@@ -95,8 +74,10 @@ export class Ship extends VectorMover {
                     break;
                 case "ArrowDown":
                     break;
-                case "space":
-                    // Fire one shot from the gun:
+                // Fire one shot from the gun:
+                case " ":
+                    const vs = this.vecshape;
+                    this.add_bullet(new Bullet(this.vp, vs.rot_pts.points[0], vs.rot_pts.points[1], this.xvel, this.yvel, vs.trig_vals[vs.position][VectorShape.COS_OFFSET], vs.trig_vals[vs.position][VectorShape.SIN_OFFSET]));
                     break;
             }
             return true;
@@ -123,12 +104,6 @@ export class Ship extends VectorMover {
         else
             return false;
     }
-    // 		switch(e.id) {
-    // 			case Event.KEY_PRESS:
-    // 			case Event.KEY_ACTION:
-    // 				if (e.key == LEFT) this.key_rotleft = true;
-    // 				if (e.key == RIGHT) this.key_rotright = true;
-    // 				if (e.key == THRUST) this.key_thrust = true;
     // 				if (e.key == FIRE) {
     // 					parent.addBullet(vm_vecshape.rot_pts.xpoints[0],
     // 						vm_vecshape.rot_pts.ypoints[0],
@@ -141,14 +116,6 @@ export class Ship extends VectorMover {
     // 					parent.pauseToggle();
     // *****/
     // 				break;
-    // 			case Event.KEY_RELEASE:
-    // 			case Event.KEY_ACTION_RELEASE:
-    // 				if (e.key == LEFT) this.key_rotleft = false;
-    // 				if (e.key == RIGHT) this.key_rotright = false;
-    // 				if (e.key == THRUST) this.key_thrust = false;
-    // 				break;
-    // 		}
-    // 		return true;
     steer() {
         // rotate left and right
         if (this.key_rotleft)

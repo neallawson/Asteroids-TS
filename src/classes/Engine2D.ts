@@ -52,12 +52,12 @@ export class VectorShape {
 	// protected npoints: number;				// number of points in following Poly's
 	public world_pts: Polygon;		// world coordinates for this shape
 	public screen_pts: Polygon;		// transformed screen coordinates
-	protected rot_pts: Polygon;			// rotated, world coordinates
-	protected bounds: Rectangle;		// bounding rectangle (for world_pts)
+	public rot_pts: Polygon;			// rotated, world coordinates
+	public bounds: Rectangle;		// bounding rectangle (for world_pts)
 	public aboutx: number = 0;		// geometrical center of shape, x-coord.
 	public abouty: number = 0;		// geometrical center of shape, y-coord.
 	protected num_rotations: number = 0;// number of rotations per 360 deg.
-	protected trig_vals: number[][];	// cosine and sine for each num_rotation.
+	public trig_vals: number[][];	// cosine and sine for each num_rotation.
 	public position: number;			// rotation position
 	// TODO: Should this really be a member of VectorShape? Should be able to map this world shape through any number of viewports, possibly dynamically at run-time.
 	vp: Viewport;
@@ -99,7 +99,7 @@ export class VectorShape {
 		if ( nrotate > 0 ) {
 			this.num_rotations = nrotate;
 			for (let i=0; i<this.num_rotations; i++) {
-				let radians = Worldport.toradians(360 - i*(360/this.num_rotations));
+				const radians = Worldport.toradians(360 - i*(360/this.num_rotations));
 				this.trig_vals.push([Math.cos(radians), Math.sin(radians)]);
 			}
 		}
@@ -312,10 +312,10 @@ export class Worldport {
 		const x = p.x;
 		const y = p.y;
 		// INT it:
-		// p.x = x * costheta - y * sintheta;
-		// p.y = x * sintheta + y * costheta;
-		p.x = Math.round(x * costheta - y * sintheta);
-        p.y = Math.round(x * sintheta + y * costheta);
+		p.x = x * costheta - y * sintheta;
+		p.y = x * sintheta + y * costheta;
+		// p.x = Math.round(x * costheta - y * sintheta);
+        // p.y = Math.round(x * sintheta + y * costheta);
 	}
 
 	static rotatepoly_by_angle(poly: Polygon, angle_degrees: number): void
@@ -329,10 +329,10 @@ export class Worldport {
 			const x = poly.points[i];
 			const y = poly.points[i+1];
 			// INT it:
-			// poly.points[i] = x * costheta - y * sintheta;
-			// poly.points[i+1] = x * sintheta + y * costheta;
-			poly.points[i] = Math.round(x * costheta - y * sintheta);
-            poly.points[i + 1] = Math.round(x * sintheta + y * costheta);
+			poly.points[i] = x * costheta - y * sintheta;
+			poly.points[i+1] = x * sintheta + y * costheta;
+			// poly.points[i] = Math.round(x * costheta - y * sintheta);
+            // poly.points[i + 1] = Math.round(x * sintheta + y * costheta);
 		}
 	}
 
@@ -341,10 +341,10 @@ export class Worldport {
 		const x = p.x;
 		const y = p.y;
 		// INT it:
-		// p.x = x * cost - y * sint;
-		// p.y = x * sint + y * cost;
-		p.x = Math.round(x * cost - y * sint);
-        p.y = Math.round(x * sint + y * cost);
+		p.x = x * cost - y * sint;
+		p.y = x * sint + y * cost;
+		// p.x = Math.round(x * cost - y * sint);
+        // p.y = Math.round(x * sint + y * cost);
 	}
 
 	static rotatepoly(poly: Polygon, cost: number, sint: number): void
@@ -354,10 +354,10 @@ export class Worldport {
 			const x = poly.points[i];
 			const y = poly.points[i+1];
 			// INT it:
-			// poly.points[i] = x * cost - y * sint;
-			// poly.points[i+1] = x * sint + y * cost;
-			poly.points[i] = Math.round(x * cost - y * sint);
-            poly.points[i + 1] = Math.round(x * sint + y * cost);
+			poly.points[i] = x * cost - y * sint;
+			poly.points[i+1] = x * sint + y * cost;
+			// poly.points[i] = Math.round(x * cost - y * sint);
+            // poly.points[i + 1] = Math.round(x * sint + y * cost);
 		}
 	}
 

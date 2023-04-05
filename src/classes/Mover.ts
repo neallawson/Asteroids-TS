@@ -44,8 +44,8 @@ import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 	constructor( 
 		private wp: Worldport,
 		protected topology: number,
-		protected x: number,			// x-position of this mover (World coords)
-		protected y: number,			// y-position of this mover
+		public x: number,			// x-position of this mover (World coords)
+		public y: number,			// y-position of this mover
 		protected xvel: number,		// x-velocity of this mover
 		protected yvel: number		// y-velocity of this mover
 	)
@@ -66,6 +66,12 @@ import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 	{
 		this.alive = false;
 	}
+
+	isAlive(): boolean
+	{
+		return this.alive;
+	}
+
 
 	startRound(): void
 	{
@@ -112,7 +118,7 @@ export class VectorMover extends Mover
 	protected vp: Viewport;	// TODO: Should this really be here?
 	protected oldx: number;	// previous x-position.  Mesh with m_x
 	protected oldy: number;	// previous y-position.  Mesh with m_y
-	protected vecshape: VectorShape | null;	// The Vector Shape object for this VM.
+	public vecshape: VectorShape | null;	// The Vector Shape object for this VM.
 
 	constructor(vp: Viewport, topology: number, x: number, y: number, xvel: number, yvel: number)
 	{
@@ -168,7 +174,7 @@ export class VectorMover extends Mover
 		// Call Mover.tick():  apply topology to x, y and xvel, yvel
 		super.tick();
 
-		// Compute Movement delta's and apply to vm_vecshape
+		// Compute Movement delta's and apply to vm_vecshape. Manage oldx, oldy.
 		let dx = this.xvel;
 		let dy = this.yvel;
 		if ( this.topology == Mover.TOPO_WRAP ) {

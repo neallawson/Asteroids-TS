@@ -28,80 +28,87 @@ import { Viewport } from "./Engine2D.js";
 //****************************************************************************
 
 
-class Bullet extends Mover {
+export class Bullet extends Mover {
 	static BULLET_SPEED = 200;		// speed, world coords.
-	static MAX_TICKS = 1000 / parent.DELAY;	// was 750
+	static MAX_TICKS = 1000 / GameConstants.DELAY;
 
-	// Use these two points with Viewport methods for
-	// updating positions
-	Point b_pw;			// Location in World coords.  Mesh with m_x, m_y
-	Point b_pv;			// Location in Viewport coords
-	int cur_tick;		// current tick
+    private vp: Viewport;
+	private cur_tick: number;		// current tick
+    private world_point: Point;
+    private view_point: Point;
 
 	// constructor:
 	// x, y = position when fired.
 	// xvelocity, yvelocity = velocity when fired.
 	// sin, cos = sin & cos of ship position when fired.
-	public Bullet(int x, int y, int xvelocity, int yvelocity, double sin, double cos)
+	constructor(vp: Viewport, x: number, y: number, xvelocity: number, yvelocity: number, sin: number, cos: number)
 	{
-		b_pw = new Point(x, y);
-		b_pv = new Point(x, y);		// x, y = placeholders for viewport point
-		m_x = x;
-		m_y = y;
-		m_xvel = (int) (xvelocity - BULLET_SPEED*cos);
-		m_yvel = (int) (yvelocity + BULLET_SPEED*sin);
-		cur_tick = 0;
-		m_alive = true;
+        super(vp.wp, Mover.TOPO_WRAP, x, y, xvelocity, yvelocity);
+        this.vp = vp;
+
+		// this.xvel = Math.round(xvelocity - Bullet.BULLET_SPEED*cos);
+		// this.yvel = Math.round(yvelocity + Bullet.BULLET_SPEED*sin);
+		this.xvel = xvelocity + Bullet.BULLET_SPEED*cos;
+		this.yvel = yvelocity + Bullet.BULLET_SPEED*sin;
+		this.cur_tick = 0;
+        this.world_point = new Point(x, y);
+        this.view_point  = new Point(x, y);
 	}
 
-	public void tick()
+	tick(): void
 	{
-		if ( cur_tick++ <= MAX_TICKS ) {
+		if ( this.cur_tick++ <= Bullet.MAX_TICKS ) {
 			super.tick(); 	// apply topology to m_x, m_y and m_xvel, m_yvel
 
-			// compute and execute moves
+			// apply x and y velocities
+			// Old: (If topology relocated m_x or m_y, don't apply velocity.) Why?
+            this.x += this.xvel;
+            this.y += this.xvel;
 
-			// If topology relocated m_x or m_y, don't apply velocity
-			if ( m_x != b_pw.x )
-				b_pw.x = m_x;
-			else {
-				m_x += m_xvel;
-				b_pw.x = m_x;
-			}
-			if ( m_y != b_pw.y )
-				b_pw.y = m_y;
-			else {
-				m_y += m_yvel;
-				b_pw.y = m_y;
-			}
+			// if ( m_x != b_pw.x )
+			// 	b_pw.x = m_x;
+			// else {
+			// 	m_x += m_xvel;
+			// 	b_pw.x = m_x;
+			// }
+			// if ( m_y != b_pw.y )
+			// 	b_pw.y = m_y;
+			// else {
+			// 	m_y += m_yvel;
+			// 	b_pw.y = m_y;
+			// }
 
-			// Update Viewport point
-			parent.gc_vp.wp.Worldpoint2Viewpoint(parent.gc_vp, b_pw, b_pv);
-		}
-		else
-			m_alive = false;
+			// Update internal points used for drawing.
+            this.world_point.x = this.x;
+            this.world_point.y = this.y;
+            this.vp.Worldpoint2Viewpoint(this.world_point, this.view_point);
+        }
+        else            
+			this.alive = false;
 	}
 
-	public void paint(Graphics g)
+	paint(g: Graphics): void
 	{
-		g.setColor(Color.yellow);
-		g.drawOval(b_pv.x, b_pv.y, 2, 2);
+       	g.lineStyle(1, 0xffff00, 1);
+		g.drawCircle(this.view_point.x, this.view_point.y, 2);
+		// g.setColor(Color.yellow);
+		// g.drawOval(b_pv.x, b_pv.y, 2, 2);
 	}
 
-	public void checkHits(Mover rocks[])
-	{
-		int i;
-		Rocks arock;
+	// public void checkHits(Mover rocks[])
+	// {
+	// 	int i;
+	// 	Rocks arock;
 
-		for (i=0; i<rocks.length; i++) {
-			arock = (Rocks) rocks[i];
-			if ( arock != null && arock.m_alive ) {
-				if ( arock.vm_vecshape.PointInShape(m_x, m_y) ) {
-					super.die();
-					arock.die();
-					break;
-				}
-			}
-		}
-	}
+	// 	for (i=0; i<rocks.length; i++) {
+	// 		arock = (Rocks) rocks[i];
+	// 		if ( arock != null && arock.m_alive ) {
+	// 			if ( arock.vm_vecshape.PointInShape(m_x, m_y) ) {
+	// 				super.die();
+	// 				arock.die();
+	// 				break;
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
