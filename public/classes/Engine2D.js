@@ -191,7 +191,7 @@ export class VectorShape {
         for (let i = 0; i < len; i += 2) {
             const x = vs.world_pts.points[i];
             const y = vs.world_pts.points[i + 1];
-            if (this.PointInShape(x, x))
+            if (this.PointInShape(x, y))
                 return (true);
         }
         return (false);

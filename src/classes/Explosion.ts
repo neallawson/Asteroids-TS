@@ -12,13 +12,7 @@ import { Viewport } from "./Engine2D.js";
 // Explosion.java -- Ship Explosion
 //
 // Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initial Release:		01/29/97.
-//
-// Copyright (c) Neal Lawson, 1997
-//
-// ----- version information -----
-// v 1.00a,	12/20/96 - 01/29/97,	Initial Classes and testing.
-//
+// Initbreak
 // ----- history and repairs -----
 //
 // ----- Description -----

@@ -32,7 +32,7 @@ let rocks = [];
 let bullets = [];
 let explosions = [];
 // Create Rocks
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 50; i++) {
     let x = GameUtils.one2n(100);
     let size = Rock.R_LARGE;
     if (x < 30)
@@ -74,6 +74,15 @@ function add_bullet(new_bullet) {
     }
     bullets.push(new_bullet);
 }
+function add_explosion(new_explosion) {
+    for (let i = 0; i < explosions.length; i++) {
+        if (!explosions[i].isAlive()) {
+            explosions[i] = new_explosion;
+            return;
+        }
+    }
+    explosions.push(new_explosion);
+}
 // MAIN GAME LOOP
 let game_alive = true;
 const ticker = new Ticker();
@@ -97,12 +106,13 @@ function main_loop(delta) {
         if (explosion.isAlive())
             explosion.tick();
     });
-    // Check collisions: rock-bullet
+    // Check collisions: rock-bullet, rock-ship
     let rlen = rocks.length;
     for (let rock_ctr = 0; rock_ctr < rlen; rock_ctr++) {
         const rock = rocks[rock_ctr];
         if (!rock.isAlive())
             continue;
+        // bullets
         let blen = bullets.length;
         for (let bullet_ctr = 0; bullet_ctr < blen; bullet_ctr++) {
             let bullet = bullets[bullet_ctr];
@@ -113,6 +123,12 @@ function main_loop(delta) {
                 rock.dieAndSpawn(add_rock);
                 break;
             }
+        }
+        // ship
+        if (ship.vecshape.ShapeInShape(rock.vecshape)) {
+            ship.dieAndExplode(add_explosion);
+            rock.dieAndSpawn(add_rock);
+            break;
         }
     }
     // Draw ship, rocks, bullets, explosions

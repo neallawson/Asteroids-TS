@@ -3,6 +3,7 @@ import { Polygon, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport } from "./Engine2D.js";
 import { Bullet } from './Bullet.js';
+import { Explosion } from './Explosion.js';
 import { GameConstants } from "./GameConstants.js";
 //****************************************************************************
 // Ship.java	--	The moving ship
@@ -170,5 +171,9 @@ export class Ship extends VectorMover {
         // Translate (move) the VectorShape to m_x, m_y
         this.vecshape.position = 0;
         this.vecshape.move(dx, dy);
+    }
+    dieAndExplode(add_explosion) {
+        super.die();
+        add_explosion(new Explosion(this.vp, this.x, this.y, this.xvel, this.yvel));
     }
 }

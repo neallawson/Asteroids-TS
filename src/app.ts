@@ -91,6 +91,17 @@ function add_bullet(new_bullet: Bullet): void
     bullets.push(new_bullet);
 }
 
+function add_explosion(new_explosion: Explosion): void
+{
+    for (let i=0; i<explosions.length; i++) {
+        if (!explosions[i].isAlive()) {
+            explosions[i] = new_explosion;
+            return;
+        }
+    }
+    explosions.push(new_explosion);
+}
+
 
 // MAIN GAME LOOP
 let game_alive = true;
@@ -118,13 +129,14 @@ function main_loop(delta: number): void {
             explosion.tick();
     });
 
-    // Check collisions: rock-bullet
+    // Check collisions: rock-bullet, rock-ship
     let rlen = rocks.length;
     for (let rock_ctr=0; rock_ctr<rlen; rock_ctr++) {
         const rock = rocks[rock_ctr];
         if (!rock.isAlive())
             continue;
 
+        // bullets
         let blen = bullets.length;
         for (let bullet_ctr=0; bullet_ctr<blen; bullet_ctr++) {
             let bullet = bullets[bullet_ctr];
@@ -137,7 +149,15 @@ function main_loop(delta: number): void {
                 break;
             }
         }
+
+        // ship
+        if (ship.vecshape!.ShapeInShape(rock.vecshape!)) {
+            ship.dieAndExplode(add_explosion);
+            rock.dieAndSpawn(add_rock);
+            break;
+        }
     }
+
 
     
     // Draw ship, rocks, bullets, explosions

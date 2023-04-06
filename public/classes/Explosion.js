@@ -7,13 +7,7 @@ import { Mover } from "./Mover.js";
 // Explosion.java -- Ship Explosion
 //
 // Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initial Release:		01/29/97.
-//
-// Copyright (c) Neal Lawson, 1997
-//
-// ----- version information -----
-// v 1.00a,	12/20/96 - 01/29/97,	Initial Classes and testing.
-//
+// Initbreak
 // ----- history and repairs -----
 //
 // ----- Description -----
@@ -22,7 +16,7 @@ import { Mover } from "./Mover.js";
 export class Explosion extends Mover {
     static MAX_SIZE = 80;
     static SIZE_INC = 4;
-    static SPEED_MUL = 0.95;
+    static SPEED_MUL = 0.6;
     size = 0; // explosion size
     vp;
     // private world_point: Point;      // world point -> view point

@@ -3,6 +3,7 @@ import { Graphics, Polygon, Point } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 import { Bullet } from './Bullet.js';
+import { Explosion } from './Explosion.js';
 import { GameConstants } from "./GameConstants.js";
 
 //****************************************************************************
@@ -206,6 +207,12 @@ export class Ship extends VectorMover {
 		// Translate (move) the VectorShape to m_x, m_y
 		this.vecshape!.position = 0;
 		this.vecshape!.move(dx, dy);
+	}
+
+	dieAndExplode(add_explosion: (e: Explosion) => void): void
+	{
+		super.die();
+		add_explosion(new Explosion(this.vp, this.x, this.y, this.xvel, this.yvel));
 	}
 
 	// public void checkHits(Mover rocks[])
