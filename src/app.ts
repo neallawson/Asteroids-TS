@@ -1,5 +1,6 @@
 // import { Renderer, Container, Ticker, Graphics } from '../node_modules/pixi.js/dist/pixi.mjs';
 import { Renderer, Container, Ticker, Graphics } from 'pixi.js';
+// import { GameController } from './classes/GameController.js';
 import { GameConstants } from './classes/GameConstants.js';
 import { Rock } from './classes/Rock.js';
 import { Ship } from './classes/Ship.js';
@@ -35,36 +36,45 @@ const world_port = new Worldport(GameConstants.WORLD_MINX, GameConstants.WORLD_M
 // const view_port = new Viewport(world_port, 0, GameConstants.SCREEN_WIDTH, GameConstants.SCREEN_HEIGHT, 0);
 const view_port = new Viewport(world_port, 0, _w, _h, 0);
 
-// Containers for rocks, bullets, explosions
+// let game_controller = new GameController(vp, renderer, stage, g);
+
+
+// Containers for rocks, bullets, explosions. 
+// TODO: Could all be one container if I made the array of some interface type
+//      with rocks, bullets, explosions, etc. implementing that interface.
 let rocks: Rock[] = [];
 let bullets: Bullet[] = [];
 let explosions: Explosion[] = [];
 
 // Create Rocks
-for (let i=0; i<20; i++) {
-    let x = GameUtils.one2n(100);
-    let size = Rock.R_LARGE;
-    if (x < 30)
-        size = Rock.R_MEDIUM;
-    else if (x >= 30 && x < 60)
-        size = Rock.R_SMALL;
+function createRocks(rocks: Rock[], num_rocks: number): void
+{
+    for (let i=0; i<num_rocks; i++) {
+        let x = GameUtils.one2n(100);
+        let size = Rock.R_LARGE;
+        if (x < 30)
+            size = Rock.R_MEDIUM;
+        else if (x >= 30 && x < 60)
+            size = Rock.R_SMALL;
 
-    let xvel = GameUtils.one2n(Rock.ROCKS_MAX_SPEED);
-    let yvel = GameUtils.one2n(Rock.ROCKS_MAX_SPEED);
-    if (GameUtils.odds(50))
-        xvel *= -1;
-    if (GameUtils.odds(50))
-        yvel *= -1;
-    let begx = GameUtils.one2n(GameConstants.WORLD_MAXX-1);
-    let begy = GameUtils.one2n(GameConstants.WORLD_MAXY-1);
-    let num_rotations = GameUtils.one2n(64);
+        let xvel = GameUtils.one2n(Rock.ROCKS_MAX_SPEED);
+        let yvel = GameUtils.one2n(Rock.ROCKS_MAX_SPEED);
+        if (GameUtils.odds(50))
+            xvel *= -1;
+        if (GameUtils.odds(50))
+            yvel *= -1;
+        let begx = GameUtils.one2n(GameConstants.WORLD_MAXX-1);
+        let begy = GameUtils.one2n(GameConstants.WORLD_MAXY-1);
+        let num_rotations = GameUtils.one2n(64);
 
-    // BUG: Bombs when num_rotations is 0.
-    let rock = new Rock(view_port, size, begx, begy, xvel, yvel, num_rotations);
-    // console.log(rock);
-    rocks.push(rock);
+        // BUG: Bombs when num_rotations is 0.
+        let rock = new Rock(view_port, size, begx, begy, xvel, yvel, num_rotations);
+        // console.log(rock);
+        rocks.push(rock);
+    }
 }
 
+createRocks(rocks, 30);
 // Create ship
 const ship = new Ship(view_port, add_bullet);
 
@@ -105,6 +115,7 @@ function add_explosion(new_explosion: Explosion): void
 
 // MAIN GAME LOOP
 let game_alive = true;
+let round_ctr = 1;
 const ticker = new Ticker();
 ticker.maxFPS  = GameConstants.FPS;
 ticker.add(main_loop);
@@ -115,10 +126,14 @@ function main_loop(delta: number): void {
     g.clear();
 
     // Tick ship, rocks, bullets, explosions
-    ship.tick();
+    if (ship.isAlive())
+        ship.tick();
+    let rock_ctr = 0;        
     rocks.forEach( (rock) => {
-        if (rock.isAlive())
+        if (rock.isAlive()) {
             rock.tick();
+            rock_ctr++;
+        }
     });
     bullets.forEach( (bullet) => {
         if (bullet.isAlive())
@@ -145,20 +160,18 @@ function main_loop(delta: number): void {
 
             if (rock.vecshape!.bounds.contains(bullet.x, bullet.y)) {
                 bullet.die();
-                rock.dieAndSpawn(add_rock);
+                rock.dieAndSpawn(add_rock, add_explosion);
                 break;
             }
         }
 
         // ship
-        if (ship.vecshape!.ShapeInShape(rock.vecshape!)) {
+        if (ship.isAlive() && ship.vecshape!.ShapeInShape(rock.vecshape!)) {
             ship.dieAndExplode(add_explosion);
-            rock.dieAndSpawn(add_rock);
+            rock.dieAndSpawn(add_rock, add_explosion);
             break;
         }
     }
-
-
     
     // Draw ship, rocks, bullets, explosions
     if (ship.isAlive())
@@ -179,12 +192,57 @@ function main_loop(delta: number): void {
     // Render the frame to the screen
     renderer.render(stage);
 
+    // Check for no more rocks (end of round) or dead ship
+    if ( rock_ctr === 0 ) {
+        createRocks(rocks, 30 + 5*round_ctr);
+        round_ctr++;
+    }
+
+    if ( !ship.isAlive() && check_clear() ) {
+        ship.centerShip();
+        ship.resurrect();
+    }
+
     if (!game_alive) {
         ticker.stop();
         g.destroy();
         return;
     }
 // console.log("FPS: " + ticker.FPS);
+}
+
+
+   // Is the middle of the field clear of rocks so that the ship
+	// can start up?
+function check_clear(): boolean
+{
+    let midx: number;
+    let midy: number;
+    let clearx: number;
+    let cleary: number
+	let allclear = true;
+
+	// Wait until the saucer clears the screen
+	// if ( saucer && saucer.isAlive() )
+    // 	return false;
+
+	if ( rocks.length === 0 )
+		return true;
+
+ 	midx = (GameConstants.WORLD_MAXX - GameConstants.WORLD_MINX) / 2;
+	midy = (GameConstants.WORLD_MAXY - GameConstants.WORLD_MINY) / 2;
+	clearx = midx / 20; // was 8 (4/8/2023)
+	cleary = midy / 20;
+	for (let i=0; i<rocks.length; i++) {
+		if ( rocks[i].isAlive() ) {
+			if ( Math.abs(rocks[i].x - midx) < clearx ||
+				  Math.abs(rocks[i].y - midy) < cleary ) {
+					allclear = false;
+					break;
+			}
+		}
+	}
+	return( allclear );
 }
 
 

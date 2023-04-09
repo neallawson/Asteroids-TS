@@ -67,6 +67,11 @@ import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 		this.alive = false;
 	}
 
+	resurrect(): void
+	{
+		this.alive = true;
+	}
+
 	isAlive(): boolean
 	{
 		return this.alive;

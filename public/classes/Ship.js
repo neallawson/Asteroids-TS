@@ -62,6 +62,8 @@ export class Ship extends VectorMover {
     }
     // handle keyboard events
     handleKeyEvent(event, key) {
+        if (!this.isAlive())
+            return false;
         if (event === 'keydown') {
             switch (key) {
                 case "ArrowLeft":
@@ -171,9 +173,12 @@ export class Ship extends VectorMover {
         // Translate (move) the VectorShape to m_x, m_y
         this.vecshape.position = 0;
         this.vecshape.move(dx, dy);
+        // Ship velocity to zero
+        this.xvel = 0;
+        this.yvel = 0;
     }
     dieAndExplode(add_explosion) {
         super.die();
-        add_explosion(new Explosion(this.vp, this.x, this.y, this.xvel, this.yvel));
+        add_explosion(new Explosion(this.vp, this.x, this.y, this.xvel, this.yvel, 3));
     }
 }

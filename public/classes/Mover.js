@@ -61,6 +61,9 @@ export class Mover {
     die() {
         this.alive = false;
     }
+    resurrect() {
+        this.alive = true;
+    }
     isAlive() {
         return this.alive;
     }

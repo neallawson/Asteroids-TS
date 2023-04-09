@@ -4,6 +4,7 @@
 import { Graphics, Polygon, Point } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
+import { Explosion } from "./Explosion.js";
 import { GameUtils } from "./GameUtils.js";
 
 
@@ -112,24 +113,30 @@ export class Rock extends VectorMover {
 		// g.drawCircle(viewp.x, viewp.y, 5);
 	}
 
-	dieAndSpawn(addrock: (r: Rock) => void): void
+	dieAndSpawn(add_rock: (r: Rock) => void, add_explosion: (e: Explosion) => void): void
 	{
 		super.die();
 
 		let new_sz = -1;
-		if (this.size === Rock.R_LARGE)
+		let magnitude = 0;
+		if (this.size === Rock.R_LARGE) {
 			new_sz = Rock.R_MEDIUM;
-		else if (this.size === Rock.R_MEDIUM)
-			new_sz = Rock.R_SMALL;			
+			magnitude = 2;
+		}			
+		else if (this.size === Rock.R_MEDIUM) {
+			new_sz = Rock.R_SMALL;
+			magnitude = 1;
+		}
+
 		if (new_sz != -1) {
-			addrock(new Rock(this.vp,
+			add_rock(new Rock(this.vp,
 				new_sz,									// size
 				this.x, this.y,							// x, y
 				GameUtils.one2n(Rock.ROCKS_MAX_SPEED),	// xvel
 				GameUtils.one2n(Rock.ROCKS_MAX_SPEED),	// yvel
 				GameUtils.one2n(64))					// num_rotations
 			);
-			addrock(new Rock(this.vp,
+			add_rock(new Rock(this.vp,
 				new_sz,									// size
 				this.x, this.y,							// x, y
 				GameUtils.one2n(Rock.ROCKS_MAX_SPEED),	// xvel
@@ -137,6 +144,7 @@ export class Rock extends VectorMover {
 				GameUtils.one2n(64))					// num_rotations
 			);
 		}
+		add_explosion(new Explosion(this.vp, this.x, this.y, this.xvel, this.yvel, magnitude));
 	}
 
 

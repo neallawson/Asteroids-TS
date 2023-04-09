@@ -1,0 +1,8 @@
+Make a dashboard where the game constants/parameters can be tuned.
+
+Fun ideas:
+- "God mode": unlimited bullets; can't die.
+
+- Unpredictable rocks that blow up at random times into lots of smaller rocks. Make them shake or something to indicate instability.
+
+- Make a missile with a simple, short-distance, 60-degree radar for rock avoidance. Won't work great - could be fun.
