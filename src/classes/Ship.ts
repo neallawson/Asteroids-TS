@@ -68,7 +68,7 @@ export class Ship extends VectorMover {
 	// Reset variables, re-center ship
 	startRound(): void		// override Mover.startRound()
 	{
-		super.startRound();			// set m_alive to true, velocities to 0
+		super.startRound();			// set alive to true, velocities to 0
 		this.centerShip();
 		this.key_rotleft = this.key_rotright = this.key_thrust = this.key_fire = false;
 	}

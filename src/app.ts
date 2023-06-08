@@ -31,7 +31,11 @@ const g = new Graphics();
 stage.addChild(g);
 
 // Setup Engine2D objects
+// TODO: Scaling works to make World ratio scame as VP ratio. Problem: Using WORLD_MAXY throughout code still.
+const wscaled_y = Math.round(GameConstants.WORLD_MAXY * _h / _w);
+// const world_port = new Worldport(GameConstants.WORLD_MINX, GameConstants.WORLD_MAXX, GameConstants.WORLD_MINY, wscaled_y);
 const world_port = new Worldport(GameConstants.WORLD_MINX, GameConstants.WORLD_MAXX, GameConstants.WORLD_MINY, GameConstants.WORLD_MAXY);
+
 
 // const view_port = new Viewport(world_port, 0, GameConstants.SCREEN_WIDTH, GameConstants.SCREEN_HEIGHT, 0);
 const view_port = new Viewport(world_port, 0, _w, _h, 0);

@@ -3,8 +3,10 @@ import { Graphics, Polygon, Point } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 import { Bullet } from './Bullet.js';
+import { Ship } from './Ship.js';
 import { Explosion } from './Explosion.js';
 import { GameConstants } from "./GameConstants.js";
+import { GameUtils } from "./GameUtils.js";
 
 //****************************************************************************
 // ----- general information -----
@@ -36,8 +38,8 @@ class Saucer extends VectorMover {
 	 static  RIGHT = 1;  	// or right.
 	 static  XVEL = 50;  	// Saucer's horizontal velocity
 	 static  YVEL = 50;  	// Saucer's vertical velocity
-	 static  L_VAL = 250;	// Po value of a large saucer
-	 static  S_VAL = 1000;// Po value of a small saucer
+	 static  L_VAL = 250;	// Points value of a large saucer
+	 static  S_VAL = 1000;// Points value of a small saucer
 	 static  MOVE = 30;	// number of ticks before changing direction
 	 static  L_FIRE = 30;	// number of ticks to fire for large
 	 static  S_FIRE = 15; // number of ticks to fire for small
@@ -53,106 +55,104 @@ class Saucer extends VectorMover {
 	static saucer_poly = new Polygon(Saucer.saucer_data);
 
 	// instance data
-	// private ship: Mover;    	// the ship we're chasing
-	// private size: number;
-	// private dir: number;		// flight direction, LEFT or RIGHT
-	// private pos: number;		// point value of this saucer
-	// private movectr: number;	// move counter
-	// private firectr: number;	// fire counter
+	private ship: Mover;    	// the ship we're chasing
+	private size: number;
+	private dir: number;		// flight direction, LEFT or RIGHT
+	private points_value: number;		// points value of this saucer
+	private movectr: number = 0;	// move counter
+	private firectr: number = 0;	// fire counter
+	private add_bullet: (b: Bullet) => void;
+	private bullet: Bullet;
 
-	//---------------------------- METHODS -----------------------------------
 
-	// initClass()	--	This method is called once for the entire class:
-	// It sets up the arrays of points used by subsequent ship instances.
-	// static public void initClass()
-	// {
-	// 	SaucerPolygon = new Polygon(Saucer_x, Saucer_y, Saucer_x.length);
-	// }
+    constructor(vp: Viewport, size: number, ship: Ship, add_bullet: (b: Bullet) => void)
+	{
+		super(vp, Mover.TOPO_WRAP, 0, 0, 0, 0);
+		this.size = size;
+		this.ship = ship;
+		this.add_bullet = add_bullet;
 
-	// constructor
-	// constructor(vp, size: number, ship: Mover)
-	// {
-	// 	super();
+		this.bullet = new Bullet(vp, 0, 0, 0, 0, 0, 0);
+		this.bullet.die();
 
-	// 	// save a reference to the ship we're trying to kill
-	// 	this.ship = ship;
+		// setup our VectorShape
+		const vecshape = new VectorShape(Saucer.saucer_poly, this.vp, Saucer.ROT);
+		this.addVectorShape(vecshape);
 
-	// 	// setup our VectorShape
-	// 	vm_vecshape = new VectorShape(SaucerPolygon, parent.gc_vp, ROT);
-	// 	this.size = size;
-	// 	if ( size == SMALL ) {
-	// 		parent.gc_vp.wp.scalepoly(vm_vecshape.world_pts, 0.6, 0.6);
-	// 		points = S_VAL;
-	// 	}
-	// 	else
-	// 		points = L_VAL;
+		if (size == Saucer.SMALL) {
+			Worldport.scalepoly(vecshape.world_pts, 0.6, 0.6);
+			this.points_value = Saucer.S_VAL;
+		}
+		else
+			this.points_value = Saucer.L_VAL;
 
-	// 	// setup initial position and flight direction
-	// 	if (Gameutil.rand_percent(0.5)) {
-	// 		dir = RIGHT;
-	// 		m_x = 0;
-	// 		m_xvel = XVEL;
-	// 	}
-	// 	else {
-	// 		dir = LEFT;
-	// 		m_x = parent.WORLD_MAXX;
-	// 		m_xvel = -XVEL;
-	// 	}
-	// 	m_y = Gameutil.rand(parent.WORLD_MAXY);
-	// 	m_yvel = 0;
-	// 	m_alive = true;
-	// 	movectr = firectr = 0;
-	// }
+		// 	// setup initial position and flight direction
+		if (GameUtils.odds(50)) {
+			this.dir = Saucer.RIGHT;
+			this.x = 0;
+			this.xvel = Saucer.XVEL;
+		}
+		else {
+			this.dir = Saucer.LEFT;
+			this.x = GameConstants.WORLD_MAXX;
+			this.xvel = -Saucer.XVEL;
+		}
+	 	this.y = GameUtils.one2n(GameConstants.WORLD_MAXY);
+		this.yvel = 0;
+	}
 
-	// private void steer()
-	// {
-	// 	movectr++;
-	// 	if ( movectr > MOVE ) {
-	// 		m_yvel = YVEL;
-	// 		movectr = 0;
-	// 		if ( Gameutil.rand_percent(0.5) )
-	// 			m_yvel -= m_yvel;
-	// 	}
-	// }
+	steer(): void
+	{
+		this.movectr++;
+		if ( this.movectr > Saucer.MOVE ) {
+			this.yvel = Saucer.YVEL;
+			this.movectr = 0;
+			if ( GameUtils.odds(50) )
+				this.yvel -= this.yvel;
+		}
+	}
 
 
 	// // Given x, y, and r, return an angle between -PI & PI
-	// double angle(double x, double y, double r) {
-	// 	double a;
+	angle(x: number, y: number, r: number): number
+	{
+		let a: number;
 
-	// 	if(x>=0)
-	// 		return Math.asin(y/r);
-	// 	else 
-	// 		return Math.PI-Math.asin(y/r);
-	// }
+		if(x >= 0)
+			return Math.asin(y/r);
+		else 
+			return Math.PI-Math.asin(y/r);
+	}
 
-	// public void fire()
-	// {
+	fire(): void
+	{
 	// 	int x, y;
 	// 	int dx, dy;
 	// 	double r, a, fire_sin, fire_cos;
 
-	// 	firectr++;
-	// 	if ( parent.checkSaucerBullet() == false ) {
-	// 		if ( (size == LARGE && firectr > L_FIRE)
-	// 			|| (size == SMALL && firectr > S_FIRE) ) {
-	// 			firectr = 0;
+		this.firectr++;
+		if ( !this.bullet.isAlive() ) {
+			if ( (this.size == Saucer.LARGE && this.firectr > Saucer.L_FIRE)
+				|| (this.size == Saucer.SMALL && this.firectr > Saucer.S_FIRE) ) {
+				this.firectr = 0;
 
-	// 			// Target Ship:  calculate the angle from saucer to ship
-	// 			x = vm_vecshape.aboutx;
-	// 			y = vm_vecshape.abouty;
-	// 			dx = ship.m_x-x;
-	// 			dy = ship.m_y-y;
-	// 			r = Math.sqrt(dx*dx + dy*dy);
-	// 			a = angle(dx,dy,r);
-	// 			fire_sin = Math.sin(a);
-	// 			fire_cos = Math.cos(a);
+				// Target Ship:  calculate the angle from saucer to ship.
+				// Originate bullet from saucer center.
+				const x = this.vecshape!.aboutx;
+				const y = this.vecshape!.abouty;
+				const dx = this.ship.x - x;
+				const dy = this.ship.y - y;
+				const r = Math.sqrt(dx*dx + dy*dy);
+				const a = this.angle(dx, dy, r);
+				const fire_sin = Math.sin(a);
+				const fire_cos = Math.cos(a);
 
-	// 			// fire a bullet at the Ship
-	// 			parent.addSaucerBullet(x, y, 0, 0, fire_sin, -fire_cos);
-	// 		}
-	// 	}
-	// }
+				// fire a bullet at the Ship
+				this.bullet = new Bullet(this.vp, x, y, this.xvel, this.yvel, fire_sin, -fire_cos);
+				this.add_bullet(this.bullet);
+			}
+		}
+	}
 
 	// public void tick()
 	// {

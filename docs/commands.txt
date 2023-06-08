@@ -1,0 +1,9 @@
+# Run typescript compiler - compile ./src/.ts code to ./public/.js code in 'watch' mode (re-compile when a file saves):
+npx tsc -p tsconfig.json -w
+
+
+# Run webpack
+./node_modules/webpack/bin/webpack.js 
+
+# (if no webpack.config.js file)
+./node_modules/webpack/bin/webpack.js ./public/app.js --output-filename=bundle.js --mode=production
