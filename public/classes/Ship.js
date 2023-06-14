@@ -3,8 +3,9 @@ import { Polygon, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport } from "./Engine2D.js";
 import { Bullet } from './Bullet.js';
-import { Explosion } from './Explosion.js';
+import { Particle } from './Particle.js';
 import { GameConstants } from "./GameConstants.js";
+import { GameUtils } from "./GameUtils.js";
 //****************************************************************************
 // Ship.java	--	The moving ship
 //
@@ -56,7 +57,7 @@ export class Ship extends VectorMover {
     }
     // Reset variables, re-center ship
     startRound() {
-        super.startRound(); // set m_alive to true, velocities to 0
+        super.startRound(); // set alive to true, velocities to 0
         this.centerShip();
         this.key_rotleft = this.key_rotright = this.key_thrust = this.key_fire = false;
     }
@@ -177,8 +178,18 @@ export class Ship extends VectorMover {
         this.xvel = 0;
         this.yvel = 0;
     }
-    dieAndExplode(add_explosion) {
+    // dieAndExplode(add_explosion: (e: Explosion) => void): void
+    dieAndExplode() {
+        const max_radius = Math.max(this.vecshape.bounds.width, this.vecshape.bounds.height);
+        for (let i = 0; i < 6; i++) {
+            const radius = Math.random() * max_radius;
+            const angle_radians = Math.random() * 2 * Math.PI;
+            const new_x = this.vecshape.aboutx + radius * Math.cos(angle_radians);
+            const new_y = this.vecshape.abouty + radius * Math.sin(angle_radians);
+            let p = new Particle(this.vp, new_x, new_y, this.xvel, this.yvel, GameUtils.one2n(4), GameUtils.one2n(10));
+            Particle.add_particle(p);
+        }
         super.die();
-        add_explosion(new Explosion(this.vp, this.x, this.y, this.xvel, this.yvel, 3));
+        // add_explosion(new Explosion(this.vp, this.x, this.y, this.xvel, this.yvel, 3));
     }
 }

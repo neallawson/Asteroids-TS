@@ -67,6 +67,7 @@ export class Mover {
     isAlive() {
         return this.alive;
     }
+    // TODO: turn this into a reset() or something?
     startRound() {
         this.xvel = 0;
         this.yvel = 0;

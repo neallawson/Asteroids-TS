@@ -3,8 +3,10 @@ import { Graphics, Polygon, Point } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 import { Bullet } from './Bullet.js';
+import { Particle } from './Particle.js';
 import { Explosion } from './Explosion.js';
 import { GameConstants } from "./GameConstants.js";
+import { GameUtils } from "./GameUtils.js";
 
 //****************************************************************************
 // Ship.java	--	The moving ship
@@ -216,10 +218,21 @@ export class Ship extends VectorMover {
 		this.yvel = 0;
 	}
 
-	dieAndExplode(add_explosion: (e: Explosion) => void): void
+	// dieAndExplode(add_explosion: (e: Explosion) => void): void
+	dieAndExplode(): void
 	{
+		const max_radius = Math.max(this.vecshape!.bounds.width, this.vecshape!.bounds.height);
+		for(let i=0; i<6; i++) {
+			const radius = Math.random() * max_radius;
+			const angle_radians = Math.random() * 2*Math.PI;
+			const new_x = this.vecshape!.aboutx + radius * Math.cos(angle_radians);
+			const new_y = this.vecshape!.abouty + radius * Math.sin(angle_radians);
+			let p = new Particle(this.vp, new_x, new_y, this.xvel, this.yvel, GameUtils.one2n(4), GameUtils.one2n(10));
+			Particle.add_particle(p);
+		}
+
 		super.die();
-		add_explosion(new Explosion(this.vp, this.x, this.y, this.xvel, this.yvel, 3));
+		// add_explosion(new Explosion(this.vp, this.x, this.y, this.xvel, this.yvel, 3));
 	}
 
 	// public void checkHits(Mover rocks[])

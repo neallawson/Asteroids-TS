@@ -4,7 +4,7 @@
 import { Graphics, Polygon, Point } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
-import { Explosion } from "./Explosion.js";
+import { Particle } from "./Particle.js";
 import { GameUtils } from "./GameUtils.js";
 
 
@@ -55,6 +55,7 @@ export class Rock extends VectorMover {
 	static R_MSCORE = 75;
 	static R_SSCORE = 100;
 
+	// instance variables
 	private num_rotations: number;		// how many rotate steps to complete a full rotation
 	private rot_ticks: number;			// rotate how quickly
 	private rot_dir: number;			// rotation direction
@@ -113,9 +114,10 @@ export class Rock extends VectorMover {
 		// g.drawCircle(viewp.x, viewp.y, 5);
 	}
 
-	dieAndSpawn(add_rock: (r: Rock) => void, add_explosion: (e: Explosion) => void): void
+	// dieAndSpawn(add_rock: (r: Rock) => void, add_explosion: (e: Explosion) => void): void
+	dieAndSpawn(add_rock: (r: Rock) => void): void
 	{
-		super.die();
+		// super.die();
 
 		let new_sz = -1;
 		let magnitude = 0;
@@ -144,7 +146,36 @@ export class Rock extends VectorMover {
 				GameUtils.one2n(64))					// num_rotations
 			);
 		}
-		add_explosion(new Explosion(this.vp, this.x, this.y, this.xvel, this.yvel, magnitude));
+		this.explode();
+		super.die();
+		// add_explosion(new Explosion(this.vp, this.x, this.y, this.xvel, this.yvel, magnitude));
+	}
+
+	explode(): void
+	{
+		const max_radius = Math.max(this.vecshape!.bounds.width, this.vecshape!.bounds.height);
+        let size = 3;
+        let num_particles = 12;
+        if (this.size === Rock.R_MEDIUM) {
+            size = 2;
+            num_particles = 8;
+        }
+        else if (this.size === Rock.R_SMALL) {
+            size = 1;
+            num_particles = 4;
+        }
+        const ran_num_particles = GameUtils.one2n(num_particles);
+        for (let i = 0; i < ran_num_particles; i++) {
+            const radius = Math.random() * max_radius;
+            const angle_radians = Math.random() * 2 * Math.PI;
+            const new_x = this.vecshape!.aboutx + radius * Math.cos(angle_radians);
+            const new_y = this.vecshape!.abouty + radius * Math.sin(angle_radians);
+            const ran_size = GameUtils.one2n(size);
+            const vel = Math.abs(this.xvel) + Math.abs(this.yvel);
+            const decay = GameUtils.one2n(vel/32);
+            let p = new Particle(this.vp, new_x, new_y, this.xvel, this.yvel, ran_size, decay);
+            Particle.add_particle(p);
+        }
 	}
 
 

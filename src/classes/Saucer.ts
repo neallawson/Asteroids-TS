@@ -30,7 +30,7 @@ import { GameUtils } from "./GameUtils.js";
 
 
 
-class Saucer extends VectorMover {
+export class Saucer extends VectorMover {
 	 static  LARGE = 1;	// 2 types of saucers, large
 	 static  SMALL = 2;	// and small.
 	 static  ROT = 0;	  	// Number of rotates() for full rotation
@@ -38,8 +38,8 @@ class Saucer extends VectorMover {
 	 static  RIGHT = 1;  	// or right.
 	 static  XVEL = 50;  	// Saucer's horizontal velocity
 	 static  YVEL = 50;  	// Saucer's vertical velocity
-	 static  L_VAL = 250;	// Points value of a large saucer
-	 static  S_VAL = 1000;// Points value of a small saucer
+	 static  LARGE_POINTS = 250;	// Points value of a large saucer
+	 static  SMALL_POINTS = 1000;// Points value of a small saucer
 	 static  MOVE = 30;	// number of ticks before changing direction
 	 static  L_FIRE = 30;	// number of ticks to fire for large
 	 static  S_FIRE = 15; // number of ticks to fire for small
@@ -81,10 +81,10 @@ class Saucer extends VectorMover {
 
 		if (size == Saucer.SMALL) {
 			Worldport.scalepoly(vecshape.world_pts, 0.6, 0.6);
-			this.points_value = Saucer.S_VAL;
+			this.points_value = Saucer.SMALL_POINTS;
 		}
 		else
-			this.points_value = Saucer.L_VAL;
+			this.points_value = Saucer.LARGE_POINTS;
 
 		// 	// setup initial position and flight direction
 		if (GameUtils.odds(50)) {
@@ -126,10 +126,6 @@ class Saucer extends VectorMover {
 
 	fire(): void
 	{
-	// 	int x, y;
-	// 	int dx, dy;
-	// 	double r, a, fire_sin, fire_cos;
-
 		this.firectr++;
 		if ( !this.bullet.isAlive() ) {
 			if ( (this.size == Saucer.LARGE && this.firectr > Saucer.L_FIRE)
@@ -154,25 +150,27 @@ class Saucer extends VectorMover {
 		}
 	}
 
-	// public void tick()
-	// {
-	// 	// Is it time to die yet?
-	// 	if ( dir == RIGHT && m_x > parent.WORLD_MAXX-100 )
-	// 		die();
-	// 	if ( dir == LEFT && m_x < 100 )
-	// 		die();
+	tick(): void
+	{
+		// Is it time to die yet?
+		if ( this.dir == Saucer.RIGHT && this.x > GameConstants.WORLD_MAXX-100 )
+			this.die();
+		if ( this.dir == Saucer.LEFT && this.x < 100 )
+			this.die();
 
-	// 	steer();			// steer saucer
-	// 	fire();			// fire a bullet
+		this.steer();			// steer saucer
+		this.fire();			// fire a bullet...maybe
 
-	// 	super.tick(); 	// VectorMover.tick(): apply topology, move vm_vecshape
-	// }
+		super.tick(); 	// VectorMover.tick(): apply topology, move vm_vecshape
+	}
 
-	// public void paint(Graphics g)
-	// {
-	// 	g.setColor(Color.green);
-	// 	g.drawPolygon(vm_vecshape.screen_pts);
-	// }
+	paint(g: Graphics): void
+	{
+        g.lineStyle(2, 0x00ff00, 1);
+		g.drawPolygon(this.vecshape!.screen_pts.points);
+		g.closePath();
+	}
+
 
 	// public boolean checkRockHits(Mover rocks[])
 	// {

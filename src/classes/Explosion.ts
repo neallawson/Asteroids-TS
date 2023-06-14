@@ -40,9 +40,6 @@ export class Explosion extends Mover {
 
         this.magnitude = magnitude;
         this.vp = vp;
-        // this.world_point = new Point(x, y);
-        // this.view_point = new Point(x, y);
-        // vp.Worldpoint2Viewpoint(this.world_point, this.view_point);
     }
 
     tick(): void
@@ -53,8 +50,10 @@ export class Explosion extends Mover {
 
         // Grow the explosion
         this.cur_size += Explosion.SIZE_INC[this.magnitude];
+
+        // Explosion is done?
         if (this.cur_size >= Explosion.MAX_SIZE[this.magnitude])
-            this.alive = false;
+            this.die();
 
         // Move
         this.x += this.xvel;

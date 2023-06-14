@@ -77,7 +77,7 @@ import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 		return this.alive;
 	}
 
-
+	// TODO: turn this into a reset() or something?
 	startRound(): void
 	{
 		this.xvel = 0;
@@ -202,6 +202,19 @@ export class VectorMover extends Mover
 		}
 		this.vecshape!.move(dx, dy);
 	}
+
+	// explode(): void
+	// {
+	// 	const max_radius = Math.max(this.vecshape!.bounds.width, this.vecshape!.bounds.height);
+	// 	for(let i=0; i<5; i++) {
+	// 		const radius = Math.random() * max_radius;
+	// 		const angle_radians = Math.random() * 2*Math.PI;
+	// 		const new_x = this.vecshape!.aboutx + radius * Math.cos(angle_radians);
+	// 		const new_y = this.vecshape!.abouty + radius * Math.sin(angle_radians);
+	// 		let p = new Particle(this.vp, new_x, new_y, this.xvel, this.yvel, 2, GameUtils.one2n(8));
+	//         Particle.add_particle(p);
+	// 	}
+	// }
 
 	// public void paint(Graphics g)
 	// {
