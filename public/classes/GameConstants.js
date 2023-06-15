@@ -28,7 +28,9 @@ export class GameConstants {
     static MAX_BULLETS = 10; // allocated size of gc_bullets[]
     static MAX_ROCKS = 50; // allocated size of gc_rocks[]
     static MAX_MISC = 3; // allocated size of gc_miscmove[]
-    static START_ROCKS = 4; //Round 1, starting # large rocks
+    static START_ROCKS = 7; //Round 1, starting # large rocks
+    static ROCKS_PER_ROUND = 3; // Number of rocks to add per round.
     static NUM_SHIPS = 3; // number of ships
     static FREE_SHIP = 10000; // pts. to get a free ship
+    static SAUCER_DELAY = 100; // How many ticks before trying to spawn saucer.
 }

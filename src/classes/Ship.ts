@@ -50,7 +50,6 @@ export class Ship extends VectorMover {
     protected key_fire = false;
 	private add_bullet: (b: Bullet) => void;
 
-
     constructor(vp: Viewport, add_bullet: (b: Bullet) => void)
 	{
 		super(vp, Mover.TOPO_WRAP, 0, 0, 0, 0);
@@ -73,6 +72,16 @@ export class Ship extends VectorMover {
 		super.startRound();			// set alive to true, velocities to 0
 		this.centerShip();
 		this.key_rotleft = this.key_rotright = this.key_thrust = this.key_fire = false;
+	}
+
+	// Bring ship back to life in a usable state.
+	resurrect(): void {
+		this.key_rotleft = false;
+		this.key_rotright = false;
+		this.key_thrust = false;
+		this.key_fire = false;
+
+		super.resurrect();
 	}
 
 	// handle keyboard events
@@ -100,9 +109,9 @@ export class Ship extends VectorMover {
 					const vs = this.vecshape!;
 					const vs_sin = vs.trig_vals[vs.position][VectorShape.SIN_OFFSET];
 					const vs_cos = vs.trig_vals[vs.position][VectorShape.COS_OFFSET];
-// console.log("xvel: "+this.xvel+" yvel: "+this.yvel+" sin: " + vs_sin+" cos: "+vs_cos);
 					this.add_bullet(
 						new Bullet(this.vp,
+							this,
 							vs.rot_pts.points[0],
 							vs.rot_pts.points[1],
 							this.xvel, this.yvel,

@@ -1,6 +1,6 @@
 // import { Graphics, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
 import { Graphics, Point } from "pixi.js";
-import { Mover } from "./Mover.js";
+import { Mover, VectorMover } from "./Mover.js";
 import { GameConstants } from "./GameConstants.js";
 import { GameUtils } from "./GameUtils.js";
 import { Viewport } from "./Engine2D.js";
@@ -36,15 +36,17 @@ export class Bullet extends Mover {
 	private cur_tick: number;		// current tick
     private world_point: Point;
     private view_point: Point;
+	public owner: VectorMover;		// Who shot this bullet?
 
 	// constructor:
 	// x, y = position when fired.
 	// xvelocity, yvelocity = velocity when fired.
 	// sin, cos = sin & cos of ship position when fired.
-	constructor(vp: Viewport, x: number, y: number, xvelocity: number, yvelocity: number, sin: number, cos: number)
+	constructor(vp: Viewport, owner: VectorMover, x: number, y: number, xvelocity: number, yvelocity: number, sin: number, cos: number)
 	{
         super(vp.wp, Mover.TOPO_WRAP, x, y, xvelocity, yvelocity);
         this.vp = vp;
+		this.owner = owner;
 
 		this.xvel = Math.round(xvelocity - Bullet.BULLET_SPEED*sin);
 		this.yvel = Math.round(yvelocity + Bullet.BULLET_SPEED*cos);

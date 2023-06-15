@@ -30,13 +30,15 @@ export class Bullet extends Mover {
     cur_tick; // current tick
     world_point;
     view_point;
+    owner; // Who shot this bullet?
     // constructor:
     // x, y = position when fired.
     // xvelocity, yvelocity = velocity when fired.
     // sin, cos = sin & cos of ship position when fired.
-    constructor(vp, x, y, xvelocity, yvelocity, sin, cos) {
+    constructor(vp, owner, x, y, xvelocity, yvelocity, sin, cos) {
         super(vp.wp, Mover.TOPO_WRAP, x, y, xvelocity, yvelocity);
         this.vp = vp;
+        this.owner = owner;
         this.xvel = Math.round(xvelocity - Bullet.BULLET_SPEED * sin);
         this.yvel = Math.round(yvelocity + Bullet.BULLET_SPEED * cos);
         // console.log("xvel: "+this.xvel+" yvel: "+this.yvel);

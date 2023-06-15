@@ -147,7 +147,7 @@ export class Rock extends VectorMover {
             const new_y = this.vecshape.abouty + radius * Math.sin(angle_radians);
             const ran_size = GameUtils.one2n(size);
             const vel = Math.abs(this.xvel) + Math.abs(this.yvel);
-            const decay = GameUtils.one2n(vel/32);
+            const decay = GameUtils.one2n(vel / 32);
             let p = new Particle(this.vp, new_x, new_y, this.xvel, this.yvel, ran_size, decay);
             Particle.add_particle(p);
         }

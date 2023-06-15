@@ -28,9 +28,9 @@ const stage = new Container();
 const g = new Graphics();
 stage.addChild(g);
 // Setup Engine2D objects
-// TODO: Scaling works to make World ratio scame as VP ratio. Problem: Using WORLD_MAXY throughout code still.
-const wscaled_y = Math.round(GameConstants.WORLD_MAXY * _h / _w);
-// const world_port = new Worldport(GameConstants.WORLD_MINX, GameConstants.WORLD_MAXX, GameConstants.WORLD_MINY, wscaled_y);
+// Scaling works to make World ratio scame as VP ratio.
+// TODO: Make work when the screen height is > screen width.
+GameConstants.WORLD_MAXY = Math.round(GameConstants.WORLD_MAXX * _h / _w);
 const world_port = new Worldport(GameConstants.WORLD_MINX, GameConstants.WORLD_MAXX, GameConstants.WORLD_MINY, GameConstants.WORLD_MAXY);
 // const view_port = new Viewport(world_port, 0, GameConstants.SCREEN_WIDTH, GameConstants.SCREEN_HEIGHT, 0);
 const view_port = new Viewport(world_port, 0, _w, _h, 0);
@@ -40,7 +40,6 @@ const view_port = new Viewport(world_port, 0, _w, _h, 0);
 //      with rocks, bullets, explosions, etc. implementing that interface.
 let rocks = [];
 let bullets = [];
-// let explosions: Explosion[] = [];
 // Create Rocks
 function createRocks(rocks, num_rocks) {
     for (let i = 0; i < num_rocks; i++) {
@@ -65,7 +64,8 @@ function createRocks(rocks, num_rocks) {
         rocks.push(rock);
     }
 }
-createRocks(rocks, 30);
+createRocks(rocks, GameConstants.START_ROCKS);
+let num_rocks = GameConstants.START_ROCKS;
 // Create ship
 const ship = new Ship(view_port, add_bullet);
 // Start the game with a dead saucer.
@@ -81,7 +81,6 @@ function add_rock(new_rock) {
     }
     rocks.push(new_rock);
 }
-let num_rocks = 0;
 function how_many_rocks() {
     return num_rocks;
     // for (let i=0; i<rocks.length; i++)
@@ -98,16 +97,6 @@ function add_bullet(new_bullet) {
     }
     bullets.push(new_bullet);
 }
-// function add_explosion(new_explosion: Explosion): void
-// {
-//     for (let i=0; i<explosions.length; i++) {
-//         if (!explosions[i].isAlive()) {
-//             explosions[i] = new_explosion;
-//             return;
-//         }
-//     }
-//     explosions.push(new_explosion);
-// }
 // MAIN GAME LOOP
 let game_alive = true;
 let round_ctr = 1;
@@ -134,17 +123,13 @@ function main_loop(delta) {
             bullet.tick();
     });
     Particle.tick_all();
-    // explosions.forEach( (explosion) => {
-    //     if (explosion.isAlive())
-    //         explosion.tick();
-    // });
+    // Saucer: tick or see if it's time to spawn a new one.
     if (saucer.isAlive())
         saucer.tick();
-    // Check to see if it's time to spawn a new saucer        
     else {
         saucer_delay++;
-        let nrocks = num_rocks;
-        if (nrocks > 1 && nrocks < 5 && saucer_delay == 100) {
+        let nrocks = how_many_rocks();
+        if (nrocks >= 1  && nrocks < 5 && saucer_delay >= GameConstants.SAUCER_DELAY) {
             saucer_delay = 0;
             // Half the time we'll spawn a saucer
             if (GameUtils.odds(50)) {
@@ -172,23 +157,52 @@ function main_loop(delta) {
                 continue;
             if (rock.vecshape.bounds.contains(bullet.x, bullet.y)) {
                 bullet.die();
-                // rock.dieAndSpawn(add_rock, add_explosion);
                 rock.dieAndSpawn(add_rock);
                 break;
             }
         }
+        // saucer
+        if (saucer.isAlive() && saucer.vecshape.ShapeInShape(rock.vecshape)) {
+            saucer.die();
+            rock.dieAndSpawn(add_rock);
+            break;
+        }
         // ship
         if (ship.isAlive() && ship.vecshape.ShapeInShape(rock.vecshape)) {
-            // ship.dieAndExplode(add_explosion);
             ship.dieAndExplode();
-            // rock.dieAndSpawn(add_rock, add_explosion);
             rock.dieAndSpawn(add_rock);
             break;
         }
     }
-    // Draw ship, rocks, bullets, explosions
+    // Check collisions: bullets-saucer, bullets-ship, saucer-ship
+    let blen = bullets.length;
+    for (let bullet_ctr = 0; bullet_ctr < blen; bullet_ctr++) {
+        let bullet = bullets[bullet_ctr];
+        if (!bullet.isAlive())
+            continue;
+        // bullet-saucer            
+        if (saucer.isAlive() && bullet.owner != saucer && saucer.vecshape.bounds.contains(bullet.x, bullet.y)) {
+            bullet.die();
+            saucer.die();
+            continue;
+        }
+        // bullet-ship
+        if (ship.isAlive() && bullet.owner != ship && ship.vecshape.bounds.contains(bullet.x, bullet.y)) {
+            bullet.die();
+            ship.dieAndExplode();
+            continue;
+        }
+    }
+    // ship-saucer
+    if (ship.isAlive() && saucer.isAlive() && ship.vecshape.ShapeInShape(saucer.vecshape)) {
+        ship.dieAndExplode();
+        saucer.die();
+    }
+    // Draw ship, saucers, rocks, bullets.
     if (ship.isAlive())
         ship.paint(g);
+    if (saucer.isAlive())
+        saucer.paint(g);
     rocks.forEach((rock) => {
         if (rock.isAlive())
             rock.paint(g);
@@ -198,15 +212,14 @@ function main_loop(delta) {
             bullet.paint(g);
     });
     Particle.paint_all(g);
-    // explosions.forEach( (explosion) => {
-    //     if (explosion.isAlive())
-    //         explosion.paint(g);
-    // });
     // Render the frame to the screen
     renderer.render(stage);
     // Check for no more rocks (end of round) or dead ship
     if (num_rocks === 0) {
-        createRocks(rocks, 30 + 5 * round_ctr);
+        let new_rocks = GameConstants.START_ROCKS + GameConstants.ROCKS_PER_ROUND * round_ctr;
+        if (new_rocks > GameConstants.MAX_ROCKS)
+            new_rocks = GameConstants.MAX_ROCKS;
+        createRocks(rocks, new_rocks);
         round_ctr++;
     }
     if (!ship.isAlive() && check_clear()) {

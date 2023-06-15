@@ -80,8 +80,8 @@ export class Particle extends Mover {
         const world_point = new Point(this.x, this.y);
         const view_point = new Point(this.x, this.y);
         this.vp.Worldpoint2Viewpoint(world_point, view_point);
-        g.lineStyle(1, 0x999999, 1);
-        g.beginFill(0x999999, 1);
+        g.lineStyle(1, 0xffffff, 1);
+        g.beginFill(0xffffff, 1);
         g.drawCircle(view_point.x, view_point.y, this.size);
         g.endFill();
     }

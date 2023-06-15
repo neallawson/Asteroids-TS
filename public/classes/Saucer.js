@@ -3,6 +3,7 @@ import { Polygon, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
 import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport } from "./Engine2D.js";
 import { Bullet } from './Bullet.js';
+import { Particle } from './Particle.js';
 import { GameConstants } from "./GameConstants.js";
 import { GameUtils } from "./GameUtils.js";
 //****************************************************************************
@@ -29,13 +30,13 @@ export class Saucer extends VectorMover {
     static ROT = 0; // Number of rotates() for full rotation
     static LEFT = 0; // Saucer's direction of flight, left
     static RIGHT = 1; // or right.
-    static XVEL = 50; // Saucer's horizontal velocity
-    static YVEL = 50; // Saucer's vertical velocity
+    static XVEL = 30; // Saucer's horizontal velocity
+    static YVEL = 30; // Saucer's vertical velocity
     static LARGE_POINTS = 250; // Points value of a large saucer
     static SMALL_POINTS = 1000; // Points value of a small saucer
     static MOVE = 30; // number of ticks before changing direction
-    static L_FIRE = 30; // number of ticks to fire for large
-    static S_FIRE = 15; // number of ticks to fire for small
+    static L_FIRE = 70; // number of ticks to fire for large
+    static S_FIRE = 30; // number of ticks to fire for small
     // static data for building Saucer's VectorShape
     //	static   Saucer_x[] = {175, 0, 175, 262, 350, 437, 525, 700, 525, 175};
     // static   Saucer_x[] = {150, 0, 150, 225, 300, 375, 450, 600, 450, 150};
@@ -58,13 +59,13 @@ export class Saucer extends VectorMover {
         this.size = size;
         this.ship = ship;
         this.add_bullet = add_bullet;
-        this.bullet = new Bullet(vp, 0, 0, 0, 0, 0, 0);
+        this.bullet = new Bullet(vp, this, 0, 0, 0, 0, 0, 0);
         this.bullet.die();
         // setup our VectorShape
         const vecshape = new VectorShape(Saucer.saucer_poly, this.vp, Saucer.ROT);
         this.addVectorShape(vecshape);
         if (size == Saucer.SMALL) {
-            Worldport.scalepoly(vecshape.world_pts, 0.6, 0.6);
+            Worldport.scalepoly(vecshape.world_pts, 0.7, 0.7);
             this.points_value = Saucer.SMALL_POINTS;
         }
         else
@@ -117,7 +118,8 @@ export class Saucer extends VectorMover {
                 const fire_sin = Math.sin(a);
                 const fire_cos = Math.cos(a);
                 // fire a bullet at the Ship
-                this.bullet = new Bullet(this.vp, x, y, this.xvel, this.yvel, fire_sin, -fire_cos);
+                // this.bullet = new Bullet(this.vp, x, y, this.xvel, this.yvel, fire_sin, -fire_cos);
+                this.bullet = new Bullet(this.vp, this, x, y, this.xvel, this.yvel, -fire_cos, fire_sin);
                 this.add_bullet(this.bullet);
             }
         }
@@ -136,5 +138,17 @@ export class Saucer extends VectorMover {
         g.lineStyle(2, 0x00ff00, 1);
         g.drawPolygon(this.vecshape.screen_pts.points);
         g.closePath();
+    }
+    die() {
+        const max_radius = Math.max(this.vecshape.bounds.width, this.vecshape.bounds.height);
+        for (let i = 0; i < 6; i++) {
+            const radius = Math.random() * max_radius;
+            const angle_radians = Math.random() * 2 * Math.PI;
+            const new_x = this.vecshape.aboutx + radius * Math.cos(angle_radians);
+            const new_y = this.vecshape.abouty + radius * Math.sin(angle_radians);
+            let p = new Particle(this.vp, new_x, new_y, this.xvel, this.yvel, GameUtils.one2n(4), GameUtils.one2n(10));
+            Particle.add_particle(p);
+        }
+        super.die();
     }
 }

@@ -61,6 +61,14 @@ export class Ship extends VectorMover {
         this.centerShip();
         this.key_rotleft = this.key_rotright = this.key_thrust = this.key_fire = false;
     }
+    	// Bring ship back to life in a usable state.
+	resurrect() {
+		this.key_rotleft = false;
+		this.key_rotright = false;
+		this.key_thrust = false;
+		this.key_fire = false;
+		super.resurrect();
+	}
     // handle keyboard events
     handleKeyEvent(event, key) {
         if (!this.isAlive())
@@ -83,8 +91,7 @@ export class Ship extends VectorMover {
                     const vs = this.vecshape;
                     const vs_sin = vs.trig_vals[vs.position][VectorShape.SIN_OFFSET];
                     const vs_cos = vs.trig_vals[vs.position][VectorShape.COS_OFFSET];
-                    // console.log("xvel: "+this.xvel+" yvel: "+this.yvel+" sin: " + vs_sin+" cos: "+vs_cos);
-                    this.add_bullet(new Bullet(this.vp, vs.rot_pts.points[0], vs.rot_pts.points[1], this.xvel, this.yvel, vs.trig_vals[vs.position][VectorShape.SIN_OFFSET], vs.trig_vals[vs.position][VectorShape.COS_OFFSET]));
+                    this.add_bullet(new Bullet(this.vp, this, vs.rot_pts.points[0], vs.rot_pts.points[1], this.xvel, this.yvel, vs.trig_vals[vs.position][VectorShape.SIN_OFFSET], vs.trig_vals[vs.position][VectorShape.COS_OFFSET]));
                     break;
             }
             return true;

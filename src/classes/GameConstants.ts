@@ -21,9 +21,9 @@ export class GameConstants {
 
     // Game pieces move in the World coordinate system and are projected into a screen viewport for rendering.
     static WORLD_MINX = 0;
-    static WORLD_MAXX = 20000;
+    static WORLD_MAXX = 18000;
     static WORLD_MINY = 0;
-    static WORLD_MAXY = 20000;
+    static WORLD_MAXY = 18000;
     // These are now determined by the max capability of the device's display (Neal, 4/2023)
     // static SCREEN_WIDTH = 1000;
     // static SCREEN_HEIGHT = Math.trunc(GameConstants.SCREEN_WIDTH * 0.8);
@@ -32,9 +32,12 @@ export class GameConstants {
     static MAX_BULLETS = 10;    // allocated size of gc_bullets[]
     static MAX_ROCKS = 50;      // allocated size of gc_rocks[]
     static MAX_MISC = 3;        // allocated size of gc_miscmove[]
-    static START_ROCKS = 4;     //Round 1, starting # large rocks
+    static START_ROCKS = 7;     //Round 1, starting # large rocks
+    static ROCKS_PER_ROUND = 3; // Number of rocks to add per round.
     static NUM_SHIPS = 3;       // number of ships
     static FREE_SHIP = 10000;   // pts. to get a free ship
+
+    static SAUCER_DELAY = 100;  // How many ticks before trying to spawn saucer.
 
     // These constants should probably not be changed
 
