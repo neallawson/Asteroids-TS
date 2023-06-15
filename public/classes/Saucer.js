@@ -35,8 +35,8 @@ export class Saucer extends VectorMover {
     static LARGE_POINTS = 250; // Points value of a large saucer
     static SMALL_POINTS = 1000; // Points value of a small saucer
     static MOVE = 30; // number of ticks before changing direction
-    static L_FIRE = 70; // number of ticks to fire for large
-    static S_FIRE = 30; // number of ticks to fire for small
+    static L_FIRE = 120;	// number of ticks to fire for large
+    static S_FIRE = 70; // number of ticks to fire for small
     // static data for building Saucer's VectorShape
     //	static   Saucer_x[] = {175, 0, 175, 262, 350, 437, 525, 700, 525, 175};
     // static   Saucer_x[] = {150, 0, 150, 225, 300, 375, 450, 600, 450, 150};
@@ -80,6 +80,11 @@ export class Saucer extends VectorMover {
             this.dir = Saucer.LEFT;
             this.x = GameConstants.WORLD_MAXX;
             this.xvel = -Saucer.XVEL;
+        }
+        // slow down big saucer
+        if (size == Saucer.LARGE) {
+            this.xvel *= 0.6;
+            this.yvel *= 0.6;
         }
         this.y = GameUtils.one2n(GameConstants.WORLD_MAXY);
         this.yvel = 0;

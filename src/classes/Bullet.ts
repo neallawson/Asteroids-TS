@@ -30,7 +30,7 @@ import { Viewport } from "./Engine2D.js";
 
 export class Bullet extends Mover {
 	static BULLET_SPEED = 200;		// speed, world coords.
-	static MAX_TICKS = 1000 / GameConstants.DELAY;
+	static MAX_TICKS = 700 / GameConstants.DELAY;
 
     private vp: Viewport;
 	private cur_tick: number;		// current tick

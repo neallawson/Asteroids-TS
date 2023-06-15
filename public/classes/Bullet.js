@@ -25,7 +25,7 @@ import { GameConstants } from "./GameConstants.js";
 //****************************************************************************
 export class Bullet extends Mover {
     static BULLET_SPEED = 200; // speed, world coords.
-    static MAX_TICKS = 1000 / GameConstants.DELAY;
+    static MAX_TICKS = 700 / GameConstants.DELAY;
     vp;
     cur_tick; // current tick
     world_point;
