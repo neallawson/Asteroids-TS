@@ -1,7 +1,7 @@
 // import { Renderer, Container, Ticker, Graphics } from '../node_modules/pixi.js/dist/pixi.mjs';
 
 // import { Renderer, Container, Ticker, Graphics } from 'pixi.js';
-// import { GameConstants } from './classes/GameConstants.js';
+// import { GameVars } from './classes/GameVars.js';
 // import { Rock } from './classes/Rock.js';
 // import { Ship } from './classes/Ship.js';
 // import { Bullet } from './classes/Bullet.js';

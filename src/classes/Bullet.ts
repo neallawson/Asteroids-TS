@@ -1,7 +1,7 @@
 // import { Graphics, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
 import { Graphics, Point } from "pixi.js";
 import { Mover, VectorMover } from "./Mover.js";
-import { GameConstants } from "./GameConstants.js";
+import { GameVars } from "./GameVars.js";
 import { GameUtils } from "./GameUtils.js";
 import { Viewport } from "./Engine2D.js";
 
@@ -30,7 +30,7 @@ import { Viewport } from "./Engine2D.js";
 
 export class Bullet extends Mover {
 	static BULLET_SPEED = 200;		// speed, world coords.
-	static MAX_TICKS = 700 / GameConstants.DELAY;
+	static MAX_TICKS = 700 / GameVars.DELAY;
 
     private vp: Viewport;
 	private cur_tick: number;		// current tick

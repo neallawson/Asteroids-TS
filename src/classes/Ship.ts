@@ -5,7 +5,7 @@ import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 import { Bullet } from './Bullet.js';
 import { Particle } from './Particle.js';
 import { Explosion } from './Explosion.js';
-import { GameConstants } from "./GameConstants.js";
+import { GameVars } from "./GameVars.js";
 import { GameUtils } from "./GameUtils.js";
 
 //****************************************************************************
@@ -211,8 +211,8 @@ export class Ship extends VectorMover {
 	centerShip(): void
 	{
 		// center the coordinates
-		this.x = GameConstants.WORLD_MAXX / 2;
-		this.y = GameConstants.WORLD_MAXY / 2;
+		this.x = GameVars.WORLD_MAXX / 2;
+		this.y = GameVars.WORLD_MAXY / 2;
 		const dx = this.x - this.oldx;
 		const dy = this.y - this.oldy;
 		this.oldx = this.x;

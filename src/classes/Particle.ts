@@ -1,7 +1,7 @@
 // import { Graphics, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
 import { Graphics, Point } from "pixi.js";
 import { Mover } from "./Mover.js";
-import { GameConstants } from "./GameConstants.js";
+import { GameVars } from "./GameVars.js";
 import { GameUtils } from "./GameUtils.js";
 import { Viewport } from "./Engine2D.js";
 

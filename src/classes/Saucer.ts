@@ -6,7 +6,7 @@ import { Bullet } from './Bullet.js';
 import { Ship } from './Ship.js';
 import { Particle } from './Particle.js';
 import { Explosion } from './Explosion.js';
-import { GameConstants } from "./GameConstants.js";
+import { GameVars } from "./GameVars.js";
 import { GameUtils } from "./GameUtils.js";
 
 //****************************************************************************
@@ -95,7 +95,7 @@ export class Saucer extends VectorMover {
 		}
 		else {
 			this.dir = Saucer.LEFT;
-			this.x = GameConstants.WORLD_MAXX;
+			this.x = GameVars.WORLD_MAXX;
 			this.xvel = -Saucer.XVEL;
 		}
         // slow down big saucer
@@ -103,7 +103,7 @@ export class Saucer extends VectorMover {
 			this.xvel *= 0.6;
 			this.yvel *= 0.6;
 		}
-	 	this.y = GameUtils.one2n(GameConstants.WORLD_MAXY);
+	 	this.y = GameUtils.one2n(GameVars.WORLD_MAXY);
 		this.yvel = 0;
 	}
 
@@ -160,7 +160,7 @@ export class Saucer extends VectorMover {
 	tick(): void
 	{
 		// Is it time to die yet?
-		if ( this.dir == Saucer.RIGHT && this.x > GameConstants.WORLD_MAXX-100 )
+		if ( this.dir == Saucer.RIGHT && this.x > GameVars.WORLD_MAXX-100 )
 			this.die();
 		if ( this.dir == Saucer.LEFT && this.x < 100 )
 			this.die();

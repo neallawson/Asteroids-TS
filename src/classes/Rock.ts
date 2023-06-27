@@ -9,28 +9,11 @@ import { GameUtils } from "./GameUtils.js";
 
 
 //****************************************************************************
-// ----- general information -----
 //
-// Rock.java	--	The asteroids themselves
+// Rock.java -- The asteroids themselves
 //
-// Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initial Release:		01/29/97.
+// Author: Neal Lawson (captainneal@gmail.com)
 //
-// Copyright (c) Neal Lawson, 1997
-//
-// ----- version information -----
-// v 1.10a, 05/07/97, Rock now extend VectorMover...see history & repairs
-// v 1.00a,	12/20/96 - 01/29/97,	Initial Classes and testing.
-//
-// ----- history and repairs -----
-// 05/07/97 -- v 1.10a,
-//				Rock now extend VectorMover instead of Mover.  Modified
-//				code to support this change:
-//				a. r_vecshape -> vm_vecshape in VectorMover
-//				b. removed delta computations in tick(), remove x, y
-//
-// ----- Description -----
-// Rock is a Mover which implements the asteroid rock.
 //****************************************************************************
 
 
@@ -40,20 +23,16 @@ export class Rock extends VectorMover {
         670, 250, 800, 400,  750, 650, 600, 800,
         400, 700, 150, 750,  250, 500,
     ];
-	// private static Large_x = [0, 50, 300, 650, 670, 800,
-	// 								750, 600, 400, 150, 250, 0];
-	// private static Large_y = [300, 100, 0, 100, 250, 400,
-	// 								650, 800, 700, 750, 500, 300];
 	static Large_rock_poly: Polygon = new Polygon(Rock.Large_rock_data);
-	static R_LARGE = 0;
-	static R_MEDIUM = 1;
-	static R_SMALL = 2;
-	static ROCKS_MAX_SPEED = 30;
-	static ROT_LEFT = 0;
-	static ROT_RIGHT = 1;
-	static R_LSCORE = 50;
-	static R_MSCORE = 75;
-	static R_SSCORE = 100;
+	static ROCK_LARGE = 0;
+	static ROCK_MEDIUM = 1;
+	static ROCK_SMALL = 2;
+	static ROCK_MAX_SPEED = 30;
+	static ROCK_ROT_LEFT = 0;
+	static ROCK_ROT_RIGHT = 1;
+	static ROCK_LSCORE = 50;
+	static ROCK_MSCORE = 75;
+	static ROCK_SSCORE = 100;
 
 	// instance variables
 	private num_rotations: number;		// how many rotate steps to complete a full rotation
@@ -73,13 +52,13 @@ export class Rock extends VectorMover {
 		this.cur_tick = 0;							// count up to rot_ticks before rotating
         this.rot_ticks = 2 + GameUtils.one2n(15);	// rotate how quickly 1 + or 2 +
 													// rotation direction
-		this.rot_dir = GameUtils.odds(50) ? Rock.ROT_LEFT : Rock.ROT_RIGHT;
+		this.rot_dir = GameUtils.odds(50) ? Rock.ROCK_ROT_LEFT : Rock.ROCK_ROT_RIGHT;
 
 		// setup our VectorShape...scale if necessary...add to super() via inherited method.
 		const vecshape: VectorShape = new VectorShape(Rock.Large_rock_poly, vp, num_rotations);
-		if ( size == Rock.R_MEDIUM )
+		if ( size == Rock.ROCK_MEDIUM )
 			Worldport.scalepoly(vecshape.world_pts, 0.6, 0.6);
-		else if ( size == Rock.R_SMALL )
+		else if ( size == Rock.ROCK_SMALL )
 			Worldport.scalepoly(vecshape.world_pts, 0.3, 0.3);
 		this.addVectorShape(vecshape);
 
@@ -93,7 +72,7 @@ export class Rock extends VectorMover {
 		this.cur_tick++;
 		if (this.cur_tick == this.rot_ticks) {
 			this.cur_tick = 0;
-			if (this.rot_dir == Rock.ROT_LEFT)
+			if (this.rot_dir == Rock.ROCK_ROT_LEFT)
 				this.rotate_left();
 			else
 				this.rotate_right();
@@ -122,11 +101,11 @@ export class Rock extends VectorMover {
 		let new_sz = -1;
 		let magnitude = 0;
 		if (this.size === Rock.R_LARGE) {
-			new_sz = Rock.R_MEDIUM;
+			new_sz = Rock.ROCK_MEDIUM;
 			magnitude = 2;
 		}			
-		else if (this.size === Rock.R_MEDIUM) {
-			new_sz = Rock.R_SMALL;
+		else if (this.size === Rock.ROCK_MEDIUM) {
+			new_sz = Rock.ROCK_SMALL;
 			magnitude = 1;
 		}
 
@@ -134,15 +113,15 @@ export class Rock extends VectorMover {
 			add_rock(new Rock(this.vp,
 				new_sz,									// size
 				this.x, this.y,							// x, y
-				GameUtils.one2n(Rock.ROCKS_MAX_SPEED),	// xvel
-				GameUtils.one2n(Rock.ROCKS_MAX_SPEED),	// yvel
+				GameUtils.one2n(Rock.ROCK_MAX_SPEED),	// xvel
+				GameUtils.one2n(Rock.ROCK_MAX_SPEED),	// yvel
 				GameUtils.one2n(64))					// num_rotations
 			);
 			add_rock(new Rock(this.vp,
 				new_sz,									// size
 				this.x, this.y,							// x, y
-				GameUtils.one2n(Rock.ROCKS_MAX_SPEED),	// xvel
-				GameUtils.one2n(Rock.ROCKS_MAX_SPEED),	// yvel
+				GameUtils.one2n(Rock.ROCK_MAX_SPEED),	// xvel
+				GameUtils.one2n(Rock.ROCK_MAX_SPEED),	// yvel
 				GameUtils.one2n(64))					// num_rotations
 			);
 		}
@@ -155,17 +134,16 @@ export class Rock extends VectorMover {
 	{
 		const max_radius = Math.max(this.vecshape!.bounds.width, this.vecshape!.bounds.height);
         let size = 3;
-        let num_particles = 12;
-        if (this.size === Rock.R_MEDIUM) {
+        let num_particles = 4 + GameUtils.one2n(12);
+        if (this.size === Rock.ROCK_MEDIUM) {
             size = 2;
-            num_particles = 8;
+            num_particles = 2 + GameUtils.one2n(8);
         }
-        else if (this.size === Rock.R_SMALL) {
+        else if (this.size === Rock.ROCK_SMALL) {
             size = 1;
             num_particles = 4;
         }
-        const ran_num_particles = GameUtils.one2n(num_particles);
-        for (let i = 0; i < ran_num_particles; i++) {
+        for (let i = 0; i < num_particles; i++) {
             const radius = Math.random() * max_radius;
             const angle_radians = Math.random() * 2 * Math.PI;
             const new_x = this.vecshape!.aboutx + radius * Math.cos(angle_radians);
@@ -213,17 +191,17 @@ export class Rock extends VectorMover {
 	// When rock is hit, this routine spawns new ones based on rock size
 	// hit(): void
 	// {
-	// 	if (size == R_LARGE) {
-	// 		parent.incrementScore(R_LSCORE);
-	// 		parent.addRock(parent.createRock(R_MEDIUM, m_x, m_y));
-	// 		parent.addRock(parent.createRock(R_MEDIUM, m_x, m_y));
+	// 	if (size == ROCK_LARGE) {
+	// 		parent.incrementScore(ROCK_LSCORE);
+	// 		parent.addRock(parent.createRock(ROCK_MEDIUM, m_x, m_y));
+	// 		parent.addRock(parent.createRock(ROCK_MEDIUM, m_x, m_y));
 	// 	}
-	// 	else if (size == R_MEDIUM) {
+	// 	else if (size == ROCK_MEDIUM) {
 	// 		parent.incrementScore(R_MSCORE);
-	// 		parent.addRock(parent.createRock(R_SMALL, m_x, m_y));
-	// 		parent.addRock(parent.createRock(R_SMALL, m_x, m_y));
+	// 		parent.addRock(parent.createRock(ROCK_SMALL, m_x, m_y));
+	// 		parent.addRock(parent.createRock(ROCK_SMALL, m_x, m_y));
 	// 	}
-	// 	else if (size == R_SMALL)
+	// 	else if (size == ROCK_SMALL)
 	// 		parent.incrementScore(R_SSCORE);
 	// }
 }	

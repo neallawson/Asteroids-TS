@@ -1,7 +1,7 @@
 // import { Renderer, Container, Ticker, Graphics } from '../node_modules/pixi.js/dist/pixi.mjs';
 import { Renderer, Container, Ticker, Graphics } from 'pixi.js';
 // import { GameController } from './classes/GameController.js';
-import { GameConstants } from './classes/GameConstants.js';
+import { GameVars } from './classes/GameVars.js';
 import { Rock } from './classes/Rock.js';
 import { Ship } from './classes/Ship.js';
 import { Saucer } from './classes/Saucer.js';
@@ -35,11 +35,11 @@ stage.addChild(g);
 // Setup Engine2D objects
 // Scaling works to make World ratio scame as VP ratio.
 // TODO: Make work when the screen height is > screen width.
-GameConstants.WORLD_MAXY = Math.round(GameConstants.WORLD_MAXX * _h / _w);
-const world_port = new Worldport(GameConstants.WORLD_MINX, GameConstants.WORLD_MAXX, GameConstants.WORLD_MINY, GameConstants.WORLD_MAXY);
+GameVars.WORLD_MAXY = Math.round(GameVars.WORLD_MAXX * _h / _w);
+const world_port = new Worldport(GameVars.WORLD_MINX, GameVars.WORLD_MAXX, GameVars.WORLD_MINY, GameVars.WORLD_MAXY);
 
 
-// const view_port = new Viewport(world_port, 0, GameConstants.SCREEN_WIDTH, GameConstants.SCREEN_HEIGHT, 0);
+// const view_port = new Viewport(world_port, 0, GameVars.SCREEN_WIDTH, GameVars.SCREEN_HEIGHT, 0);
 const view_port = new Viewport(world_port, 0, _w, _h, 0);
 
 // let game_controller = new GameController(vp, renderer, stage, g);
@@ -56,11 +56,11 @@ function createRocks(rocks: Rock[], num_rocks: number): void
 {
     for (let i=0; i<num_rocks; i++) {
         let x = GameUtils.one2n(100);
-        let size = Rock.R_LARGE;
+        let size = Rock.ROCK_LARGE;
         if (x < 30)
-            size = Rock.R_MEDIUM;
+            size = Rock.ROCK_MEDIUM;
         else if (x >= 30 && x < 60)
-            size = Rock.R_SMALL;
+            size = Rock.ROCK_SMALL;
 
         let xvel = GameUtils.one2n(Rock.ROCKS_MAX_SPEED);
         let yvel = GameUtils.one2n(Rock.ROCKS_MAX_SPEED);
@@ -68,8 +68,8 @@ function createRocks(rocks: Rock[], num_rocks: number): void
             xvel *= -1;
         if (GameUtils.odds(50))
             yvel *= -1;
-        let begx = GameUtils.one2n(GameConstants.WORLD_MAXX-1);
-        let begy = GameUtils.one2n(GameConstants.WORLD_MAXY-1);
+        let begx = GameUtils.one2n(GameVars.WORLD_MAXX-1);
+        let begy = GameUtils.one2n(GameVars.WORLD_MAXY-1);
         let num_rotations = GameUtils.one2n(64);
 
         // BUG: Bombs when num_rotations is 0.
@@ -78,8 +78,8 @@ function createRocks(rocks: Rock[], num_rocks: number): void
         rocks.push(rock);
     }
 }
-createRocks(rocks, GameConstants.START_ROCKS);
-let num_rocks = GameConstants.START_ROCKS;
+createRocks(rocks, GameVars.START_ROCKS);
+let num_rocks = GameVars.START_ROCKS;
 
 // Create ship
 const ship = new Ship(view_port, add_bullet);
@@ -127,7 +127,7 @@ let game_alive = true;
 let round_ctr = 1;
 let saucer_delay = 0;
 const ticker = new Ticker();
-ticker.maxFPS  = GameConstants.FPS;
+ticker.maxFPS  = GameVars.FPS;
 ticker.add(main_loop);
 ticker.start();
 
@@ -158,7 +158,7 @@ function main_loop(delta: number): void {
     else {
         saucer_delay++;
         let nrocks = how_many_rocks();
-        if (nrocks >= 1 && nrocks < 5 && saucer_delay >= GameConstants.SAUCER_DELAY) {
+        if (nrocks >= 1 && nrocks < 5 && saucer_delay >= GameVars.SAUCER_DELAY) {
             saucer_delay = 0;
             // Half the time we'll spawn a saucer
             if (GameUtils.odds(50)) {
@@ -256,9 +256,9 @@ function main_loop(delta: number): void {
 
     // Check for no more rocks (end of round) or dead ship
     if ( num_rocks === 0 ) {
-        let new_rocks = GameConstants.START_ROCKS + GameConstants.ROCKS_PER_ROUND*round_ctr
-        if ( new_rocks > GameConstants.MAX_ROCKS)
-            new_rocks = GameConstants.MAX_ROCKS;
+        let new_rocks = GameVars.START_ROCKS + GameVars.ROCKS_PER_ROUND*round_ctr
+        if ( new_rocks > GameVars.MAX_ROCKS)
+            new_rocks = GameVars.MAX_ROCKS;
         createRocks(rocks, new_rocks);
         round_ctr++;
     }
@@ -294,8 +294,8 @@ function check_clear(): boolean
 	if ( rocks.length === 0 )
 		return true;
 
- 	midx = (GameConstants.WORLD_MAXX - GameConstants.WORLD_MINX) / 2;
-	midy = (GameConstants.WORLD_MAXY - GameConstants.WORLD_MINY) / 2;
+ 	midx = (GameVars.WORLD_MAXX - GameVars.WORLD_MINX) / 2;
+	midy = (GameVars.WORLD_MAXY - GameVars.WORLD_MINY) / 2;
 	clearx = midx / 20; // was 8 (4/8/2023)
 	cleary = midy / 20;
 	for (let i=0; i<rocks.length; i++) {
