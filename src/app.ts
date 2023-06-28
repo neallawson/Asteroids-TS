@@ -56,14 +56,14 @@ function createRocks(rocks: Rock[], num_rocks: number): void
 {
     for (let i=0; i<num_rocks; i++) {
         let x = GameUtils.one2n(100);
-        let size = Rock.ROCK_LARGE;
+        let size = GameVars.ROCK_LARGE;
         if (x < 30)
-            size = Rock.ROCK_MEDIUM;
+            size = GameVars.ROCK_MEDIUM;
         else if (x >= 30 && x < 60)
-            size = Rock.ROCK_SMALL;
+            size = GameVars.ROCK_SMALL;
 
-        let xvel = GameUtils.one2n(Rock.ROCKS_MAX_SPEED);
-        let yvel = GameUtils.one2n(Rock.ROCKS_MAX_SPEED);
+        let xvel = GameUtils.one2n(GameVars.ROCK_MAX_SPEED);
+        let yvel = GameUtils.one2n(GameVars.ROCK_MAX_SPEED);
         if (GameUtils.odds(50))
             xvel *= -1;
         if (GameUtils.odds(50))
@@ -85,7 +85,7 @@ let num_rocks = GameVars.START_ROCKS;
 const ship = new Ship(view_port, add_bullet);
 
 // Start the game with a dead saucer.
-let saucer = new Saucer(view_port, Saucer.LARGE, ship, add_bullet);
+let saucer = new Saucer(view_port, GameVars.SAUCER_LARGE, ship, add_bullet);
 saucer.die();   
 
 
@@ -165,9 +165,9 @@ function main_loop(delta: number): void {
                 // if round < 4, Large 70%, Small 30%. Else, Large 10%, Small 90%.
                 let saucer_size = 0;
                 if (round_ctr < 4)
-                    saucer_size = GameUtils.odds(70) ? Saucer.LARGE : Saucer.SMALL;
+                    saucer_size = GameUtils.odds(70) ? GameVars.SAUCER_LARGE : GameVars.SAUCER_SMALL;
                 else
-                    saucer_size = GameUtils.odds(10) ? Saucer.LARGE : Saucer.SMALL;
+                    saucer_size = GameUtils.odds(10) ? GameVars.SAUCER_LARGE : GameVars.SAUCER_SMALL;
                 saucer = new Saucer(view_port, saucer_size, ship, add_bullet);
             }
         }
