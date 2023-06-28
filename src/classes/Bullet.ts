@@ -30,7 +30,7 @@ import { Viewport } from "./Engine2D.js";
 
 export class Bullet extends Mover {
 	static BULLET_SPEED = 200;		// speed, world coords.
-	static MAX_TICKS = 700 / GameVars.DELAY;
+	static BULLET_MAX_TICKS = 700 / GameVars.DELAY;
 
     private vp: Viewport;
 	private cur_tick: number;		// current tick
@@ -58,7 +58,7 @@ export class Bullet extends Mover {
 
 	tick(): void
 	{
-		if ( this.cur_tick++ <= Bullet.MAX_TICKS ) {
+		if ( this.cur_tick++ <= Bullet.BULLET_MAX_TICKS ) {
 			super.tick(); 	// apply topology to m_x, m_y and m_xvel, m_yvel
 
 			// apply x and y velocities

@@ -29,10 +29,10 @@ export class Ship extends VectorMover {
 	// static THRUST = Event.UP;
 	// static FIRE = ' ';
 
-	static SHIP_ROT = 64;	// Number of rotates() for full rotation (was 16)
-	static POWER = 5;		// World-coord:  Thrust per press (was 30)
-	static FADE = 0.3;		// fade-per-tick deduction
-	static MAX_SPEED = 60;	// fastest this.xvel and this.yvel allowed
+	// static SHIP_ROT = 64;		// Number of rotates() for full rotation (was 16)
+	// static SHIP_POWER = 5;		// World-coord:  Thrust per press (was 30)
+	// static SHIP_FADE = 0.3;		// fade-per-tick deduction
+	// static SHIP_MAX_SPEED = 60;	// fastest this.xvel and this.yvel allowed
 
 	// static data for building Ship's VectorShape
 	// static final int Ship_x[] = {125, 0, 93, 93, 156, 156, 250, 125};
@@ -53,11 +53,11 @@ export class Ship extends VectorMover {
     constructor(vp: Viewport, add_bullet: (b: Bullet) => void)
 	{
 		super(vp, Mover.TOPO_WRAP, 0, 0, 0, 0);
-		this.num_rotations = Ship.SHIP_ROT;
+		this.num_rotations = GameVars.SHIP_ROT;
 		this.add_bullet = add_bullet;
 
 		// setup our VectorShape
-		const vecshape = new VectorShape(Ship.ship_poly, this.vp, Ship.SHIP_ROT);
+		const vecshape = new VectorShape(Ship.ship_poly, this.vp, GameVars.SHIP_ROT);
         this.addVectorShape(vecshape);
 
        	// Translate (move) this shape to screen center
@@ -168,11 +168,11 @@ export class Ship extends VectorMover {
 
 		// thrust	
 		if ( this.key_thrust ) {
-			let i = this.xvel - Math.round(this.vecshape!.xthrust(Ship.POWER));
-			if ( (i > 0 && i <= Ship.MAX_SPEED) || (i < 0 && i > -Ship.MAX_SPEED) )
+			let i = this.xvel - Math.round(this.vecshape!.xthrust(GameVars.SHIP_POWER));
+			if ( (i > 0 && i <= GameVars.SHIP_MAX_SPEED) || (i < 0 && i > -GameVars.SHIP_MAX_SPEED) )
 				this.xvel = i;
-			i = this.yvel + Math.round(this.vecshape!.ythrust(Ship.POWER));
-			if ( (i > 0 && i <= Ship.MAX_SPEED) || (i < 0 && i > -Ship.MAX_SPEED) )
+			i = this.yvel + Math.round(this.vecshape!.ythrust(GameVars.SHIP_POWER));
+			if ( (i > 0 && i <= GameVars.SHIP_MAX_SPEED) || (i < 0 && i > -GameVars.SHIP_MAX_SPEED) )
 				this.yvel = i;
 		}
 	}
@@ -182,14 +182,14 @@ export class Ship extends VectorMover {
 		this.steer();		// Based on keyboard booleans, manage ship
 
 		// slow ship down a touch...check drift in all directions
-		if ( this.xvel > Ship.FADE )
-			this.xvel -= Ship.FADE;
-		else if ( this.xvel < -Ship.FADE )
-			this.xvel += Ship.FADE;
-		if ( this.yvel > Ship.FADE )
-			this.yvel -= Ship.FADE;
-		else if ( this.yvel < -Ship.FADE )
-			this.yvel += Ship.FADE;
+		if ( this.xvel > GameVars.SHIP_FADE )
+			this.xvel -= GameVars.SHIP_FADE;
+		else if ( this.xvel < -GameVars.SHIP_FADE )
+			this.xvel += GameVars.SHIP_FADE;
+		if ( this.yvel > GameVars.SHIP_FADE )
+			this.yvel -= GameVars.SHIP_FADE;
+		else if ( this.yvel < -GameVars.SHIP_FADE )
+			this.yvel += GameVars.SHIP_FADE;
 
 		super.tick(); 	// VectorMover.tick(): apply topology, move vm_vecshape
 	}
