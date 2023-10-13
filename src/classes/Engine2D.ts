@@ -64,7 +64,7 @@ export class VectorShape {
 
 
 	// /**
-	//  *		VectorShape(Viewport)	--	This is VectorShape's simplest constructor.
+		//  *		VectorShape(Viewport)	--	This is VectorShape's simplest constructor.
 	//  *		Classes extending VectorShape which call this constructor must setup
 	//  *		the polygons themselves.
 	//  */

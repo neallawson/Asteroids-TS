@@ -9,14 +9,10 @@ import { GameUtils } from "./GameUtils.js";
 import { GameVars } from "./GameVars.js";
 
 
-//****************************************************************************
+// Rock.ts -- The asteroids themselves
 //
-// Rock.java -- The asteroids themselves
-//
-// Author: Neal Lawson (captainneal@gmail.com)
-//
-//****************************************************************************
-
+// Coded by: Neal Lawson, captainneal@gmail.com
+// Copyright (c) Neal Lawson, 1996
 
 export class Rock extends VectorMover {
 	static Large_rock_data = [

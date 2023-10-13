@@ -1,11 +1,8 @@
-// ****************************************************************************
 // Gameutils.ts -- Some helpful, shared functions.
 // 
 // Written by: Neal Lawson, captainneal@gmail.com
 // Copyright (c) Neal Lawson, 2022
-// 
-// ----- Description -----
-// ****************************************************************************
+
 
 export class GameUtils {
 

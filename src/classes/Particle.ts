@@ -6,18 +6,9 @@ import { GameUtils } from "./GameUtils.js";
 import { Viewport } from "./Engine2D.js";
 
 
-//****************************************************************************
-// ----- general information -----
-//
-// Explosion.java -- Ship Explosion
-//
-// Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initbreak
-// ----- history and repairs -----
-//
-// ----- Description -----
-// Explosion is a Mover that is an animated ship explosion.
-//****************************************************************************
+// Particle.ts - Move some particles around.
+// Coded by: Neal Lawson, captainneal@gmail.com
+// Copyright (c) Neal Lawson, 2022
                 
 export class Particle extends Mover {
     // class variable

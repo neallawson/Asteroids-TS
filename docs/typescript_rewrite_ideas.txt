@@ -1,0 +1,33 @@
+This file is in the new typescript_rewrite branch. The design of this game is from 1996 and was designed with Java in mind, so this branch is for re-writing the project with typescript in mind.
+
+This document is for capturing ideas related to the design and implementation of this re-write.
+-Neal, 10/05/2023.
+----------------------------------
+
+New Interfaces:
+
+GameEntity - Base interface for entities in the game.
+  properties: x, y, alive, wp
+  methods: reset(), die(), resurrect(), isAlive(), hide(), show(default), tick()
+
+Static extends GameEntity - Static entity in the game.
+  properties: x, y, alive, wp
+  methods:
+
+Mover extends GameEntity - Moving entity in the game.
+  properties:  xvel, yvel, topology,
+  methods:
+    reset(), die(), resurrect(), isAlive(), tick()
+
+New Objects:
+
+
+
+Changes:
+
+- Move the code in Mover.tick() into Mover.apply_topography() that is called in the tick() loop.
+
+- Add factories to create, kill, and in general manage the game items.
+
+- 
+

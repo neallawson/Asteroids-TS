@@ -8,19 +8,9 @@ import { Explosion } from './Explosion.js';
 import { GameVars } from "./GameVars.js";
 import { GameUtils } from "./GameUtils.js";
 
-//****************************************************************************
-// Ship.java	--	The moving ship
-//
-// Written by:			Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initial Release:		01/29/97.
-//
+// Ship.ts -- The moving ship
+// Coded by: Neal Lawson, captainneal@gmail.com
 // Copyright (c) Neal Lawson, 1996
-//
-// ----- version information -----
-// v 1.10a, 05/07/97, Ship now extends VectorMover...cleaned up.
-// v 1.00a,	12/20/96 - 01/29/97,	Initial Classes and testing.
-//
-//****************************************************************************
 
 export class Ship extends VectorMover {
 	// Movement commands:  LEFT, RIGHT, THRUST, FIRE

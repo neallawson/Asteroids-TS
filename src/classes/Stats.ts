@@ -1,3 +1,7 @@
+// Stats.ts - Keep up with game statistics.
+// Coded by: Neal Lawson, captainneal@gmail.com
+// Copyright (c) Neal Lawson, 2023
+
 export class Stats {
    	// constructor(xmin, xmax, ymin, ymax)
     constructor(

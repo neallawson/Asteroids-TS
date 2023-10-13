@@ -2,37 +2,12 @@
 import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 
 
-//****************************************************************************
-// ----- general information -----
-//
-// Mover.java	--	Moving object
-//
-// Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initial Release:		01/29/97.
-//
+// Mover.java -- Moving object
+// Coded by: Neal Lawson, captainneal@gmail.com
 // Copyright (c) Neal Lawson, 1996
-//
-// ----- version information -----
-// v 1.10a, 05/07/97, Began work on new class VectorMover.
-// v 1.00a,	12/20/96 - 01/29/97,	Initial Classes and testing.
-//
-// ----- history and repairs -----
-// v 1.10a:
-//		a. Added new class, VectorMover
-//		b. Added instance var's, m_oldx, m_oldy to Mover.  New logic also.
-//
-// ----- Description -----
-// Mover is a simple class to define what a moving game object needs
-// in order to be functional.  Many of the concepts of this class were 
-// taken from Chris Boyke's game, SpaceWar.
-//****************************************************************************
 
 
-// /**
-//  *		Mover	--	a moving object class.
-//  *		@author	Neal Lawson
-//  *		@version	1.0
-//  */
+// Mover -- a moving object class.
 
  export class Mover
 {

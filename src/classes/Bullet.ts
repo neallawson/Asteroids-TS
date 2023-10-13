@@ -5,28 +5,9 @@ import { GameVars } from "./GameVars.js";
 import { GameUtils } from "./GameUtils.js";
 import { Viewport } from "./Engine2D.js";
 
-//****************************************************************************
-// ----- general information -----
-//
-// Bullet.java	--	The bullets
-//
-// Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initial Release:		01/29/97.
-//
-// Copyright (c) Neal Lawson, 1997
-//
-// ----- version information -----
-// v 1.10a, 05/07/97, 'Rocks' now use vm_vecshape not r_vecshape, so
-//		the r_vecshape reference in checkHits() was changed.
-// v 1.00a,	12/20/96 - 01/29/97,	Initial Classes and testing.
-//
-// ----- history and repairs -----
-//
-// ----- Description -----
-// Bullet is a Mover that serves as the Asteroids game bullets the
-// Ship fires.
-//****************************************************************************
-
+// Bullet
+// Coded by: Neal Lawson, captainneal@gmail.com
+// Copyright (c) Neal Lawson, 1996
 
 export class Bullet extends Mover {
 	static BULLET_SPEED = 200;		// speed, world coords.

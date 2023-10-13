@@ -1,12 +1,8 @@
-// # ****************************************************************************
-// #
-// # Const.py -- Constants for the Asteroids game. Game objects need access to
-// #     some of these, so they're consolidated here.
-// #
-// # Written by: Neal Lawson, captainneal@gmail.com
-// # Copyright (c) Neal Lawson, 2022
-// #
-// # ****************************************************************************
+// Const.py -- Constants for the Asteroids game. Game objects need access to
+//     some of these, so they're consolidated here.
+//
+// Coded by: Neal Lawson, captainneal@gmail.com
+// Copyright (c) Neal Lawson, 1996
 
 export class GameVars {
     

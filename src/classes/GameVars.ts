@@ -1,12 +1,10 @@
-// # ****************************************************************************
-// #
-// # Const.py -- Constants for the Asteroids game. Game objects need access to
+
+// # GameVars.ts -- Constants for the Asteroids game. Game objects need access to
 // #     some of these, so they're consolidated here.
 // #
 // # Written by: Neal Lawson, captainneal@gmail.com
 // # Copyright (c) Neal Lawson, 2022
-// #
-// # ****************************************************************************
+
 
 export class GameVars {
     

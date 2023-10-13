@@ -9,26 +9,12 @@ import { Explosion } from './Explosion.js';
 import { GameVars } from "./GameVars.js";
 import { GameUtils } from "./GameUtils.js";
 
-//****************************************************************************
-// ----- general information -----
-//
-// Saucer.java	-- The flying saucer
-//
-// Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initial Release:		05/08/97.
-//
-// Copyright (c) Neal Lawson, 1996
-//
-// ----- version information -----
-// v 1.10a, 05/07/97 - 05/08/97, Initially written and tested
-//
-// ----- history and repairs -----
 
-// ----- Description -----
+// Saucer.ts	-- The flying saucer
 // Saucer is a class extending VectorMover.  It contains the functionality
 // for all flying saucers used in the Asteroids game.
-//****************************************************************************
-
+// Coded by: Neal Lawson, captainneal@gmail.com
+// Copyright (c) Neal Lawson, 1996
 
 
 export class Saucer extends VectorMover {
