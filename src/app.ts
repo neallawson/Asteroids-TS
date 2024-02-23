@@ -10,6 +10,7 @@ import { Bullet } from './classes/Bullet.js';
 import { Particle } from './classes/Particle.js';
 import { Worldport, Viewport } from './classes/Engine2D.js';
 import { GameUtils } from './classes/GameUtils.js';
+import { MoverText } from './classes/MoverText.js';
 
 // const canvas = document.getElementById('gamecanvas');
 const canvas = document.body.appendChild(document.createElement('canvas'));
@@ -50,6 +51,7 @@ const view_port = new Viewport(world_port, 0, _w, _h, 0);
 //      with rocks, bullets, explosions, etc. implementing that interface.
 let rocks: Rock[] = [];
 let bullets: Bullet[] = [];
+let screen_text: MoverText[] = [];
 
 // Create Rocks
 function createRocks(rocks: Rock[], num_rocks: number): void
@@ -89,7 +91,7 @@ let saucer = new Saucer(view_port, GameVars.SAUCER_LARGE, ship, add_bullet);
 saucer.die();   
 
 
-// Manage adding rocks, bullets, and explosions.
+// Manage adding rocks, bullets, screen text, and explosions.
 function add_rock(new_rock: Rock): void
 {
     for (let i=0; i<rocks.length; i++) {
@@ -121,6 +123,17 @@ function add_bullet(new_bullet: Bullet): void
     bullets.push(new_bullet);
 }
 
+function add_screen_text(new_text: MoverText): void
+{
+    for (let i=0; i<screen_text.length; i++) {
+        if(!screen_text[i].isAlive()) {
+            screen_text[i] = new_text;
+            return;
+        }
+    }
+    screen_text.push(new_text);
+}
+
 
 // MAIN GAME LOOP
 let game_alive = true;
@@ -135,7 +148,7 @@ function main_loop(delta: number): void {
     // Draw black background
     g.clear();
 
-    // Tick ship, rocks, bullets, explosions, and saucer.
+    // Tick ship, rocks, bullets, screentext, explosions, and saucer.
     if (ship.isAlive())
         ship.tick();
 
@@ -149,6 +162,10 @@ function main_loop(delta: number): void {
     bullets.forEach( (bullet) => {
         if (bullet.isAlive())
             bullet.tick();
+    });
+    screen_text.forEach( (stext) => {
+        if (stext.isAlive())
+            stext.tick();
     });
     Particle.tick_all();
 
@@ -236,7 +253,7 @@ function main_loop(delta: number): void {
         saucer.die();
     }
     
-    // Draw ship, saucers, rocks, bullets.
+    // Draw ship, saucers, rocks, bullets, screen text, and particles.
     if (ship.isAlive())
         ship.paint(g);
     if (saucer.isAlive())
@@ -248,6 +265,10 @@ function main_loop(delta: number): void {
     bullets.forEach( (bullet) => {
         if (bullet.isAlive())
             bullet.paint(g);
+    });
+    screen_text.forEach( (stext) => {
+        if (stext.isAlive())
+            stext.paint(g);
     });
     Particle.paint_all(g);
 

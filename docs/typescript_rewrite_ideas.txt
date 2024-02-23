@@ -6,12 +6,22 @@ This document is for capturing ideas related to the design and implementation of
 
 New Interfaces:
 
-GameEntity - Base interface for entities in the game.
-  properties: x, y, alive, wp
-  methods: reset(), die(), resurrect(), isAlive(), hide(), show(default), tick()
+GameEntityActions - Interface defining minimum actions GameEntities need to do.
+reset(), die(), resurrect(), isAlive(), hide(), show(), tick(delta), paint()
+
+Mover - Interface defining actions moving objects must implement.
+
+
+New classes:
+
+GameEntity (Implements GameEntityActions) Base class for entities in the game.
+  instance variables/properties: loc: Point, alive: boolean, wp: WorldPort
+  class variables:
+  class methods:
+  methods: GameEntityActions
 
 Static extends GameEntity - Static entity in the game.
-  properties: x, y, alive, wp
+  properties: (x, y, alive, wp)-inherited.
   methods:
 
 Mover extends GameEntity - Moving entity in the game.
@@ -20,12 +30,26 @@ Mover extends GameEntity - Moving entity in the game.
     reset(), die(), resurrect(), isAlive(), tick()
 
 New Objects:
+gameObjects - type {
+   type: string
+   collection: list[GameEntity]
+   properties: {} // map of properties that can be extended over time. static objects can set move=false, for example. hide=true turns off rendering call, etc.
+}
+
+GameObjectsManager - singleton
+- add_list(type, list): each type has an identifying string (union type?) such as 'rocks', 'saucer', 'ship', 'bullets', 'text', etc.
+  -- each list can be treated differently by the processors in the game objects manager. 
+- holds all the lists of game objects and has methods to do stuff to all of them.
+- Move() (or tick()) ticks them all.
+- collider(search_command)
+   - search_command: map
 
 
 
 Changes:
 
-- Move the code in Mover.tick() into Mover.apply_topography() that is called in the tick() loop.
+- Move the code in Mover.tick() into WorldPort.apply_topography(mover) that is called in the tick() loop.
+-
 
 - Add factories to create, kill, and in general manage the game items.
 

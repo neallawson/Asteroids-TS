@@ -62,6 +62,7 @@ import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 
 	// tick()	--	This method is called by the GameCanvas 'parent'.
 	// Use this method to move and do something.
+	// 2023 TODO: Move this to WorldPort so it handles the TOPO modes consistently? Don't leave up to game entities.
 	tick(): void
 	{
 		if (this.topology == Mover.TOPO_WRAP) {
