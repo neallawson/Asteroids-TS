@@ -1,32 +1,7 @@
-//****************************************************************************
-// ----- general information -----
-//
-// Mover.java	--	Moving object
-//
-// Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initial Release:		01/29/97.
-//
+// Mover.java -- Moving object
+// Coded by: Neal Lawson, captainneal@gmail.com
 // Copyright (c) Neal Lawson, 1996
-//
-// ----- version information -----
-// v 1.10a, 05/07/97, Began work on new class VectorMover.
-// v 1.00a,	12/20/96 - 01/29/97,	Initial Classes and testing.
-//
-// ----- history and repairs -----
-// v 1.10a:
-//		a. Added new class, VectorMover
-//		b. Added instance var's, m_oldx, m_oldy to Mover.  New logic also.
-//
-// ----- Description -----
-// Mover is a simple class to define what a moving game object needs
-// in order to be functional.  Many of the concepts of this class were 
-// taken from Chris Boyke's game, SpaceWar.
-//****************************************************************************
-// /**
-//  *		Mover	--	a moving object class.
-//  *		@author	Neal Lawson
-//  *		@version	1.0
-//  */
+// Mover -- a moving object class.
 export class Mover {
     wp;
     topology;
@@ -51,13 +26,37 @@ export class Mover {
         this.yvel = yvel;
         this.alive = true;
     }
+    // Static methods for managing a collection of Movers. We pass the _container in to
+    // allow Mover subclasses to figure out where best to store different Mover subtypes.
+    static add(_container, m) {
+        const len = _container.length;
+        for (let i = 0; i < len; i++) {
+            if (_container[i].isAlive()) {
+                _container[i] = m;
+                return;
+            }
+        }
+        _container.push(m);
+    }
+    static tick_all(_container) {
+        _container.forEach((m) => {
+            if (m.isAlive())
+                m.tick();
+        });
+    }
+    // static paint_all(_container: Mover[], g: Graphics): void
+    // {
+    //     _container.forEach( (m) => {
+    //         if (m.isAlive())
+    //             m.paint(g);
+    //     });    
+    // }
     // handleEvent(Event e)
     // {
     // 	return( false );
     // }
-    // paint(Graphics g)
-    // {
-    // }
+    paint(g) {
+    }
     die() {
         this.alive = false;
     }
@@ -75,6 +74,7 @@ export class Mover {
     }
     // tick()	--	This method is called by the GameCanvas 'parent'.
     // Use this method to move and do something.
+    // 2023 TODO: Move this to WorldPort so it handles the TOPO modes consistently? Don't leave up to game entities.
     tick() {
         if (this.topology == Mover.TOPO_WRAP) {
             if (this.x < this.wp.xwl) {

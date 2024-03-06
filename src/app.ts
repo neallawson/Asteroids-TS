@@ -30,17 +30,14 @@ const renderer = new Renderer({
 
 // High-level pixi.js objects (includes renderer)
 const stage = new Container();
-const g = new Graphics();
-stage.addChild(g);
+const graphics = new Graphics();
+stage.addChild(graphics);
 
 // Setup Engine2D objects
-// Scaling works to make World ratio scame as VP ratio.
+// Scaling works to make the World ratio the same as the VP ratio.
 // TODO: Make work when the screen height is > screen width.
 GameVars.WORLD_MAXY = Math.round(GameVars.WORLD_MAXX * _h / _w);
 const world_port = new Worldport(GameVars.WORLD_MINX, GameVars.WORLD_MAXX, GameVars.WORLD_MINY, GameVars.WORLD_MAXY);
-
-
-// const view_port = new Viewport(world_port, 0, GameVars.SCREEN_WIDTH, GameVars.SCREEN_HEIGHT, 0);
 const view_port = new Viewport(world_port, 0, _w, _h, 0);
 
 // let game_controller = new GameController(vp, renderer, stage, g);
@@ -49,12 +46,14 @@ const view_port = new Viewport(world_port, 0, _w, _h, 0);
 // Containers for rocks, bullets, explosions. 
 // TODO: Could all be one container if I made the array of some interface type
 //      with rocks, bullets, explosions, etc. implementing that interface.
+// TODO: Fix, and pre-allocate, the size of these arrays and replace constructors with
+// a factory method to generate and kill a new entity. Much, much faster and resource friendly.
 let rocks: Rock[] = [];
 let bullets: Bullet[] = [];
 let screen_text: MoverText[] = [];
 
 // Create Rocks
-function createRocks(rocks: Rock[], num_rocks: number): void
+function createRocks(rocks: Rock[], num_rocks: number): number
 {
     for (let i=0; i<num_rocks; i++) {
         let x = GameUtils.one2n(100);
@@ -72,19 +71,20 @@ function createRocks(rocks: Rock[], num_rocks: number): void
             yvel *= -1;
         let begx = GameUtils.one2n(GameVars.WORLD_MAXX-1);
         let begy = GameUtils.one2n(GameVars.WORLD_MAXY-1);
-        let num_rotations = GameUtils.one2n(64);
+        let num_rotations = GameUtils.one2n(GameVars.ROCK_MAX_ROT);
 
         // BUG: Bombs when num_rotations is 0.
         let rock = new Rock(view_port, size, begx, begy, xvel, yvel, num_rotations);
         // console.log(rock);
         rocks.push(rock);
     }
+    return num_rocks;
 }
-createRocks(rocks, GameVars.START_ROCKS);
-let num_rocks = GameVars.START_ROCKS;
+let num_rocks = createRocks(rocks, GameVars.START_ROCKS);
 
-// Create ship
+// Create ship - disable it initially.
 const ship = new Ship(view_port, add_bullet);
+ship.die();
 
 // Start the game with a dead saucer.
 let saucer = new Saucer(view_port, GameVars.SAUCER_LARGE, ship, add_bullet);
@@ -137,20 +137,108 @@ function add_screen_text(new_text: MoverText): void
 
 // MAIN GAME LOOP
 let game_alive = true;
+let game_paused = false;
+let game_state = 'OVER';
 let round_ctr = 1;
+let cur_ship = 1;
 let saucer_delay = 0;
+let screen_message = '';
+let msg_text = "KEYS:\n\n<LEFT Arrow> or A = Rotate Left\n<RIGHT Arrow> or D = Rotate Right\n<UP Arrow> or W = Thrust\n<Spacebar> = Gun\n<Enter> = Start Game\n<Esc> = Pause Game";
+const msg_mt = new MoverText(view_port, msg_text, 500, 300, 0, 0);
 const ticker = new Ticker();
 ticker.maxFPS  = GameVars.FPS;
 ticker.add(main_loop);
 ticker.start();
 
 function main_loop(delta: number): void {
-    // Draw black background
-    g.clear();
+    if (game_paused) {
+        return;
+    }
 
+    // Draw black background
+    graphics.clear();
+
+    // Manage the various game states and transitions between them:
+    if (game_state === "INTRO") {
+        // const msg1 = new MoverText(view_port, "-- KEYS --: Rotate L/R: <Arrows> or A and D.", 300, 300, 0, 0);
+        // const msg2 = new MoverText(view_port, "Thrust: <UP Arrow> or W. Gun: <Spacebar>", 400, 500, 0, 0);
+        // const msg3 = new MoverText(view_port, "<Enter> to Start. <ESC> to Pause.", 400, 700, 0, 0);
+
+        // // add_screen_text(msg);
+        // stage.addChild(msg1.text_pixie, msg2.text_pixie, msg3.text_pixie);
+    }
+    else if (game_state === "START") {
+        // remove msg_mt's Text object from the app.stage.
+        msg_mt.text_pixie.removeFromParent();
+
+        // Reset game state for new game.
+        ship.resurrect();
+        ship.startRound();
+        rocks = []; // Clear out old rocks.
+        num_rocks = createRocks(rocks, GameVars.START_ROCKS);
+        round_ctr = 1;
+        cur_ship = 1;
+        game_state = "PLAYING";
+        return;
+    }
+    else if (game_state === "OVER") {
+        // Turn off ship...display INTRO text
+        ship.die();
+        stage.addChild(msg_mt.text_pixie);
+        game_state = "INTRO";
+        return;
+    }
+
+    // Tick ship, rocks, bullets, screentext, explosions, and saucer. Create new saucer if it's time.
+    tick_game_elements();
+
+    // Check collisions: rock-bullet, rock-saucer, rock-ship, bullets-saucer, bullets-ship, saucer-ship
+    check_collisions();
+    
+    // Draw ship, saucers, rocks, bullets, screen text, and particles.
+    paint_game_elements();
+
+    // Render the frame to the screen
+    renderer.render(stage);
+
+    if (game_state === "PLAYING") {
+        // Check for no more rocks (end of round) or dead ship
+        if ( num_rocks === 0 ) {
+            let new_rocks = GameVars.START_ROCKS + GameVars.ROCKS_PER_ROUND*round_ctr
+            if (new_rocks > GameVars.MAX_ROCKS)
+                new_rocks = GameVars.MAX_ROCKS;
+            num_rocks = createRocks(rocks, new_rocks);
+            round_ctr++;
+        }
+
+        if ( !ship.isAlive() ) {
+            if (cur_ship === GameVars.NUM_SHIPS) {
+                game_state = 'OVER';
+                return;
+            }
+            else if (check_clear()) {
+                cur_ship++;
+                ship.startRound();
+                // ship.centerShip();
+                // ship.resurrect();
+            }
+        }
+    }
+
+    // if (!game_alive) {
+    //     ticker.stop();
+    //     graphics.destroy();
+    //     return;
+    // }
+// console.log("FPS: " + ticker.FPS);
+}
+
+
+function tick_game_elements(): void {
     // Tick ship, rocks, bullets, screentext, explosions, and saucer.
-    if (ship.isAlive())
+    if (ship.isAlive()) {
         ship.tick();
+    }
 
     num_rocks = 0;        
     rocks.forEach( (rock) => {
@@ -160,18 +248,21 @@ function main_loop(delta: number): void {
         }
     });
     bullets.forEach( (bullet) => {
-        if (bullet.isAlive())
+        if (bullet.isAlive()) {
             bullet.tick();
+        }
     });
     screen_text.forEach( (stext) => {
-        if (stext.isAlive())
+        if (stext.isAlive()) {
             stext.tick();
+        }
     });
     Particle.tick_all();
 
     // Saucer: tick or see if it's time to spawn a new one.
-    if (saucer.isAlive())
+    if (saucer.isAlive()) {
         saucer.tick();
+    }        
     else {
         saucer_delay++;
         let nrocks = how_many_rocks();
@@ -181,16 +272,20 @@ function main_loop(delta: number): void {
             if (GameUtils.odds(50)) {
                 // if round < 4, Large 70%, Small 30%. Else, Large 10%, Small 90%.
                 let saucer_size = 0;
-                if (round_ctr < 4)
+                if (round_ctr < 4) {
                     saucer_size = GameUtils.odds(70) ? GameVars.SAUCER_LARGE : GameVars.SAUCER_SMALL;
-                else
+                }
+                else {
                     saucer_size = GameUtils.odds(10) ? GameVars.SAUCER_LARGE : GameVars.SAUCER_SMALL;
+                }
                 saucer = new Saucer(view_port, saucer_size, ship, add_bullet);
             }
         }
     }
+}
 
-    // Check collisions: rock-bullet, rock-ship
+function check_collisions(): void {
+    // Check collisions: rock-bullet, rock-saucer, rock-ship
     let rlen = rocks.length;
     for (let rock_ctr=0; rock_ctr<rlen; rock_ctr++) {
         const rock = rocks[rock_ctr];
@@ -251,50 +346,28 @@ function main_loop(delta: number): void {
     if (ship.isAlive() && saucer.isAlive() && ship.vecshape!.ShapeInShape(saucer.vecshape!)) {
         ship.dieAndExplode();
         saucer.die();
-    }
-    
-    // Draw ship, saucers, rocks, bullets, screen text, and particles.
+    } 
+}
+
+function paint_game_elements(): void
+{
     if (ship.isAlive())
-        ship.paint(g);
+      ship.paint(graphics);
     if (saucer.isAlive())
-        saucer .paint(g);
+        saucer .paint(graphics);
     rocks.forEach( (rock) => {
         if (rock.isAlive())
-            rock.paint(g);
+            rock.paint(graphics);
     });
     bullets.forEach( (bullet) => {
         if (bullet.isAlive())
-            bullet.paint(g);
+            bullet.paint(graphics);
     });
-    screen_text.forEach( (stext) => {
-        if (stext.isAlive())
-            stext.paint(g);
-    });
-    Particle.paint_all(g);
-
-    // Render the frame to the screen
-    renderer.render(stage);
-
-    // Check for no more rocks (end of round) or dead ship
-    if ( num_rocks === 0 ) {
-        let new_rocks = GameVars.START_ROCKS + GameVars.ROCKS_PER_ROUND*round_ctr
-        if ( new_rocks > GameVars.MAX_ROCKS)
-            new_rocks = GameVars.MAX_ROCKS;
-        createRocks(rocks, new_rocks);
-        round_ctr++;
-    }
-
-    if ( !ship.isAlive() && check_clear() ) {
-        ship.centerShip();
-        ship.resurrect();
-    }
-
-    if (!game_alive) {
-        ticker.stop();
-        g.destroy();
-        return;
-    }
-// console.log("FPS: " + ticker.FPS);
+    // screen_text.forEach( (stext) => {
+    //     if (stext.isAlive())
+    //         stext.paint(graphics);
+    // });
+    Particle.paint_all(graphics);
 }
 
 
@@ -346,18 +419,28 @@ window.addEventListener("keydown", keyDownHandler);
 window.addEventListener("keyup", keyUpHandler);
 function keyDownHandler(event: KeyboardEvent) {
     if (event.key !== undefined) {
-        console.log("Keydown: <" + event.key + ">");
+        // console.log("Keydown: <" + event.key + ">");
         switch(event.key) {
             case "ArrowLeft":
             case "ArrowRight":
             case "ArrowUp":
             case "ArrowDown":
+            case 'w':
+            case 'a':
+            case 's':
+            case 'd':
             case " ":
                 ship.handleKeyEvent('keydown', event.key)
                 break;
+            
+            case "Enter":
+                if (game_state === 'INTRO') {
+                    game_state = 'START';
+                }
+                break;
 
             case "Escape":
-                game_alive = false;
+                game_paused = !game_paused;
                 break;
             default:
         }
@@ -370,6 +453,10 @@ function keyUpHandler(event: KeyboardEvent) {
             case "ArrowRight":
             case "ArrowUp":
             case "ArrowDown":
+            case 'w':
+            case 'a':
+            case 's':
+            case 'd':
             case "space":
                 ship.handleKeyEvent('keyup', event.key)
                 break;
@@ -379,3 +466,27 @@ function keyUpHandler(event: KeyboardEvent) {
           }
     }
 }
+
+
+/*
+ *
+ * GameController - Singleton that is the controller for the game.
+ */
+// class GameController {
+//     constructor(vp, renderer, stage, g)
+// 	{
+// 		this.vp = vp;
+//         this.wp = wp.world_port;
+//         this.renderer = renderer;
+//         this.stage = stage;
+//         this.graphics = g;
+
+//     }        
+// }
+
+// /*
+//  * GameElementsManager - Singleton that manages all of the elements in the game.
+//  */
+// class GameElementsManager {
+
+// }

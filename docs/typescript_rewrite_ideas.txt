@@ -6,25 +6,50 @@ This document is for capturing ideas related to the design and implementation of
 
 New Interfaces:
 
-GameEntityActions - Interface defining minimum actions GameEntities need to do.
+Gameable/GameElementActions - Interface defining minimum actions GameEntities need to do.
 reset(), die(), resurrect(), isAlive(), hide(), show(), tick(delta), paint()
 
-Mover - Interface defining actions moving objects must implement.
+Movable - Interface defining actions moving objects must implement.
+
+Collidable - Interface defining GameEntity collision actions to be handled by the collision_handler():
+- 
+Timable Interface - Interface defining methods GameObjects must implement to use a timer.
+   - function timer_handler(timer_name: string)
+
+   ex: new_timer((timableObject, "test timer", 2));
+
+        ...
+        // 2 seconds later (timers are checked in the main game loop), a timer makes this call:
+        timableObject.time_handler("test timer");
+
+         
+
 
 
 New classes:
 
-GameEntity (Implements GameEntityActions) Base class for entities in the game.
+New Singletons:
+- CollisionManager
+- GameElementsManager
+- GameController - manages the main game loop, game start/reset object creation. 
+(Maybe function, not singleton ?) MainLoop: calls tick(), collision_checker(), paint(), etc.
+
+GameEntity (Implements GameElementActions) Base class for entities in the game.
   instance variables/properties: loc: Point, alive: boolean, wp: WorldPort
   class variables:
   class methods:
   methods: GameEntityActions
 
-Static extends GameEntity - Static entity in the game.
+  Timable Interface:
+   
+
+# TODO: NO INHERITANCE!
+Static extends GameElement - Static entity in the game.
   properties: (x, y, alive, wp)-inherited.
   methods:
 
-Mover extends GameEntity - Moving entity in the game.
+# TODO: NO INHERITANCE!
+Mover extends GameElement - Moving entity in the game.
   properties:  xvel, yvel, topology,
   methods:
     reset(), die(), resurrect(), isAlive(), tick()
@@ -32,11 +57,11 @@ Mover extends GameEntity - Moving entity in the game.
 New Objects:
 gameObjects - type {
    type: string
-   collection: list[GameEntity]
+   collection: list[GameElement]
    properties: {} // map of properties that can be extended over time. static objects can set move=false, for example. hide=true turns off rendering call, etc.
 }
 
-GameObjectsManager - singleton
+GameElementsManager - singleton
 - add_list(type, list): each type has an identifying string (union type?) such as 'rocks', 'saucer', 'ship', 'bullets', 'text', etc.
   -- each list can be treated differently by the processors in the game objects manager. 
 - holds all the lists of game objects and has methods to do stuff to all of them.

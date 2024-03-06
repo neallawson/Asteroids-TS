@@ -1,4 +1,4 @@
-//import { Polygon } from "../../node_modules/pixi.js";
+import { Graphics } from "pixi.js";
 import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 
 
@@ -28,14 +28,44 @@ import { VectorShape, Worldport, Viewport } from "./Engine2D.js";
 		this.alive = true;
 	}
 
+    // Static methods for managing a collection of Movers. We pass the _container in to
+    // allow Mover subclasses to figure out where best to store different Mover subtypes.
+    static add(_container: Mover[], m: Mover): void
+    {
+        const len = _container.length;
+        for (let i=0; i<len; i++) {
+            if (_container[i].isAlive()) {
+                _container[i] = m;
+                return;
+            }
+        }
+        _container.push(m);
+    }
+
+    static tick_all(_container: Mover[]): void
+    {
+        _container.forEach( (m) => {
+            if (m.isAlive())
+                m.tick();
+        });                
+    }
+
+    // static paint_all(_container: Mover[], g: Graphics): void
+    // {
+    //     _container.forEach( (m) => {
+    //         if (m.isAlive())
+    //             m.paint(g);
+    //     });    
+    // }
+
 	// handleEvent(Event e)
 	// {
 	// 	return( false );
 	// }
 
-	// paint(Graphics g)
-	// {
-	// }
+	paint(g: Graphics): void
+	{
+	}
 
 	die(): void
 	{

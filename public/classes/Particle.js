@@ -1,20 +1,11 @@
 import { Graphics, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
 // import { Point } from "pixi.js";
 import { Mover } from "./Mover.js";
-//****************************************************************************
-// ----- general information -----
-//
-// Explosion.java -- Ship Explosion
-//
-// Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initbreak
-// ----- history and repairs -----
-//
-// ----- Description -----
-// Explosion is a Mover that is an animated ship explosion.
-//****************************************************************************
+// Particle.ts - Move some particles around.
+// Coded by: Neal Lawson, captainneal@gmail.com
+// Copyright (c) Neal Lawson, 2022
 export class Particle extends Mover {
-    // class variable
+    // Class (static) variables
     static particle_container = [];
     // instance data
     size;
@@ -27,21 +18,12 @@ export class Particle extends Mover {
         this.decay = decay;
         // Particle.add_particle(this);
     }
+    // Class (static) methods
     static add_particle(p) {
-        const len = Particle.particle_container.length;
-        for (let i = 0; i < len; i++) {
-            if (!Particle.particle_container[i].isAlive()) {
-                Particle.particle_container[i] = p;
-                return;
-            }
-        }
-        Particle.particle_container.push(p);
+        Mover.add(Particle.particle_container, p);
     }
     static tick_all() {
-        Particle.particle_container.forEach((p) => {
-            if (p.isAlive())
-                p.tick();
-        });
+        Mover.tick_all(Particle.particle_container);
     }
     static paint_all(g) {
         Particle.particle_container.forEach((p) => {
@@ -49,6 +31,7 @@ export class Particle extends Mover {
                 p.paint(g);
         });
     }
+    // Instance methods
     tick() {
         // Slow down - apply the decay, account for direction of velocity.
         this.xvel = this.apply_decay(this.xvel, this.decay);

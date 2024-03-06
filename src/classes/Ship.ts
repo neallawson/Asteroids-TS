@@ -83,14 +83,18 @@ export class Ship extends VectorMover {
         if (event === 'keydown') {
             switch(key) {
                 case "ArrowLeft":
+                case 'a':
                     this.key_rotleft = true;
                     break;
                 case "ArrowRight":
+                case 'd':
                     this.key_rotright = true;
                     break;
                 case "ArrowUp":
+                case 'w':
                     this.key_thrust = true;
                     break;
+                case 's':
                 case "ArrowDown":
                     break;
 
@@ -115,15 +119,19 @@ export class Ship extends VectorMover {
         else if (event === 'keyup') {
             switch(key) {
                 case "ArrowLeft":
+                case 'a':
                     this.key_rotleft = false;
                     break;
                 case "ArrowRight":
+                case 'd':
                     this.key_rotright = false;
                     break;
                 case "ArrowUp":
+                case 'w':
                     this.key_thrust = false;
                     break;
                 case "ArrowDown":
+                case 's':
                     break;
                 case "space":
                     // Nothing to do on keyup. Must press the fire button each time to shoot.
@@ -134,19 +142,6 @@ export class Ship extends VectorMover {
         else
             return false;
     }
-
-// 				if (e.key == FIRE) {
-// 					parent.addBullet(vm_vecshape.rot_pts.xpoints[0],
-// 						vm_vecshape.rot_pts.ypoints[0],
-// 						this.xvel, this.yvel,
-// 						vm_vecshape.trig_vals[vm_vecshape.position][vm_vecshape.COS],
-// 						vm_vecshape.trig_vals[vm_vecshape.position][vm_vecshape.SIN]);
-// 				}
-// /*****COMMENTED OUT BECAUSE OF BUG*****
-// 				if (e.key == 'p' || e.key == 'P')
-// 					parent.pauseToggle();
-// *****/
-// 				break;
 
 	steer(): void
 	{

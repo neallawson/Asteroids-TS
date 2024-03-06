@@ -1,31 +1,13 @@
 import { Graphics, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
 // import { Point } from "pixi.js";
 import { Mover } from "./Mover.js";
-import { GameConstants } from "./GameConstants.js";
-//****************************************************************************
-// ----- general information -----
-//
-// Bullet.java	--	The bullets
-//
-// Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initial Release:		01/29/97.
-//
-// Copyright (c) Neal Lawson, 1997
-//
-// ----- version information -----
-// v 1.10a, 05/07/97, 'Rocks' now use vm_vecshape not r_vecshape, so
-//		the r_vecshape reference in checkHits() was changed.
-// v 1.00a,	12/20/96 - 01/29/97,	Initial Classes and testing.
-//
-// ----- history and repairs -----
-//
-// ----- Description -----
-// Bullet is a Mover that serves as the Asteroids game bullets the
-// Ship fires.
-//****************************************************************************
+import { GameVars } from "./GameVars.js";
+// Bullet
+// Coded by: Neal Lawson, captainneal@gmail.com
+// Copyright (c) Neal Lawson, 1996
 export class Bullet extends Mover {
     static BULLET_SPEED = 200; // speed, world coords.
-    static MAX_TICKS = 700 / GameConstants.DELAY;
+    static BULLET_MAX_TICKS = 700 / GameVars.DELAY;
     vp;
     cur_tick; // current tick
     world_point;
@@ -47,7 +29,7 @@ export class Bullet extends Mover {
         this.view_point = new Point(x, y);
     }
     tick() {
-        if (this.cur_tick++ <= Bullet.MAX_TICKS) {
+        if (this.cur_tick++ <= Bullet.BULLET_MAX_TICKS) {
             super.tick(); // apply topology to m_x, m_y and m_xvel, m_yvel
             // apply x and y velocities
             // Old: (If topology relocated m_x or m_y, don't apply velocity.) Why?

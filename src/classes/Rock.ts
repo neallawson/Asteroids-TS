@@ -90,7 +90,7 @@ export class Rock extends VectorMover {
 		// g.drawCircle(viewp.x, viewp.y, 5);
 	}
 
-	// dieAndSpawn(add_rock: (r: Rock) => void, add_explosion: (e: Explosion) => void): void
+	// dieAndSpawn(add_rock: (r: Rock) => void): void
 	dieAndSpawn(add_rock: (r: Rock) => void): void
 	{
 		// super.die();

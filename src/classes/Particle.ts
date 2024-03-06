@@ -11,7 +11,7 @@ import { Viewport } from "./Engine2D.js";
 // Copyright (c) Neal Lawson, 2022
                 
 export class Particle extends Mover {
-    // class variable
+    // Class (static) variables
     static particle_container: Particle[] = [];
 
     // instance data
@@ -29,24 +29,15 @@ export class Particle extends Mover {
         // Particle.add_particle(this);
     }
 
+    // Class (static) methods
     static add_particle(p: Particle): void
     {
-        const len = Particle.particle_container.length;
-        for (let i=0; i<len; i++) {
-            if (!Particle.particle_container[i].isAlive()) {
-                Particle.particle_container[i] = p;
-                return;
-            }
-        }
-        Particle.particle_container.push(p);
+        Mover.add(Particle.particle_container, p);
     }
 
     static tick_all(): void
     {
-        Particle.particle_container.forEach( (p) => {
-            if (p.isAlive())
-                p.tick();
-        });                
+        Mover.tick_all(Particle.particle_container);              
     }
 
     static paint_all(g: Graphics): void
@@ -56,7 +47,8 @@ export class Particle extends Mover {
                 p.paint(g);
         });    
     }
-
+    
+    // Instance methods
     tick(): void
     {
         // Slow down - apply the decay, account for direction of velocity.

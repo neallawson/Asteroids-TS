@@ -4,39 +4,26 @@ import { Mover, VectorMover } from "./Mover.js";
 import { VectorShape, Worldport } from "./Engine2D.js";
 import { Bullet } from './Bullet.js';
 import { Particle } from './Particle.js';
-import { GameConstants } from "./GameConstants.js";
+import { GameVars } from "./GameVars.js";
 import { GameUtils } from "./GameUtils.js";
-//****************************************************************************
-// ----- general information -----
-//
-// Saucer.java	-- The flying saucer
-//
-// Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initial Release:		05/08/97.
-//
-// Copyright (c) Neal Lawson, 1996
-//
-// ----- version information -----
-// v 1.10a, 05/07/97 - 05/08/97, Initially written and tested
-//
-// ----- history and repairs -----
-// ----- Description -----
+// Saucer.ts	-- The flying saucer
 // Saucer is a class extending VectorMover.  It contains the functionality
 // for all flying saucers used in the Asteroids game.
-//****************************************************************************
+// Coded by: Neal Lawson, captainneal@gmail.com
+// Copyright (c) Neal Lawson, 1996
 export class Saucer extends VectorMover {
-    static LARGE = 1; // 2 types of saucers, large
-    static SMALL = 2; // and small.
-    static ROT = 0; // Number of rotates() for full rotation
-    static LEFT = 0; // Saucer's direction of flight, left
-    static RIGHT = 1; // or right.
-    static XVEL = 30; // Saucer's horizontal velocity
-    static YVEL = 30; // Saucer's vertical velocity
-    static LARGE_POINTS = 250; // Points value of a large saucer
-    static SMALL_POINTS = 1000; // Points value of a small saucer
-    static MOVE = 30; // number of ticks before changing direction
-    static L_FIRE = 120;	// number of ticks to fire for large
-    static S_FIRE = 70; // number of ticks to fire for small
+    //  static  SAUCER_LARGE = 1;	// 2 types of saucers, large
+    //  static  SAUCER_SMALL = 2;	// and small.
+    //  static  SAUCER_ROT = 0;	  	// Number of rotates() for full rotation
+    //  static  SAUCER_LEFT = 0;	  	// Saucer's direction of flight, left
+    //  static  SAUCER_RIGHT = 1;  	// or right.
+    //  static  SAUCER_XVEL = 30;  	// Saucer's horizontal velocity
+    //  static  SAUCER_YVEL = 30;  	// Saucer's vertical velocity
+    //  static  SAUCER_LARGE_POINTS = 250;	// Points value of a large saucer
+    //  static  SAUCER_SMALL_POINTS = 1000;// Points value of a small saucer
+    //  static  SAUCER_MOVE = 30;	// number of ticks before changing direction
+    //  static  SAUCER_LARGE_FIRE = 120;	// number of ticks to fire for large
+    //  static  SAUCER_SMALL_FIRE = 70; // number of ticks to fire for small
     // static data for building Saucer's VectorShape
     //	static   Saucer_x[] = {175, 0, 175, 262, 350, 437, 525, 700, 525, 175};
     // static   Saucer_x[] = {150, 0, 150, 225, 300, 375, 450, 600, 450, 150};
@@ -48,7 +35,7 @@ export class Saucer extends VectorMover {
     // instance data
     ship; // the ship we're chasing
     size;
-    dir; // flight direction, LEFT or RIGHT
+    dir; // flight direction, SAUCER_LEFT or SAUCER_RIGHT
     points_value; // points value of this saucer
     movectr = 0; // move counter
     firectr = 0; // fire counter
@@ -62,37 +49,37 @@ export class Saucer extends VectorMover {
         this.bullet = new Bullet(vp, this, 0, 0, 0, 0, 0, 0);
         this.bullet.die();
         // setup our VectorShape
-        const vecshape = new VectorShape(Saucer.saucer_poly, this.vp, Saucer.ROT);
+        const vecshape = new VectorShape(Saucer.saucer_poly, this.vp, GameVars.SAUCER_ROT);
         this.addVectorShape(vecshape);
-        if (size == Saucer.SMALL) {
+        if (size == GameVars.SAUCER_SMALL) {
             Worldport.scalepoly(vecshape.world_pts, 0.7, 0.7);
-            this.points_value = Saucer.SMALL_POINTS;
+            this.points_value = GameVars.SAUCER_SMALL_POINTS;
         }
         else
-            this.points_value = Saucer.LARGE_POINTS;
+            this.points_value = GameVars.SAUCER_LARGE_POINTS;
         // 	// setup initial position and flight direction
         if (GameUtils.odds(50)) {
-            this.dir = Saucer.RIGHT;
+            this.dir = GameVars.SAUCER_RIGHT;
             this.x = 0;
-            this.xvel = Saucer.XVEL;
+            this.xvel = GameVars.SAUCER_XVEL;
         }
         else {
-            this.dir = Saucer.LEFT;
-            this.x = GameConstants.WORLD_MAXX;
-            this.xvel = -Saucer.XVEL;
+            this.dir = GameVars.SAUCER_LEFT;
+            this.x = GameVars.WORLD_MAXX;
+            this.xvel = -GameVars.SAUCER_XVEL;
         }
         // slow down big saucer
-        if (size == Saucer.LARGE) {
+        if (size == GameVars.SAUCER_LARGE) {
             this.xvel *= 0.6;
             this.yvel *= 0.6;
         }
-        this.y = GameUtils.one2n(GameConstants.WORLD_MAXY);
+        this.y = GameUtils.one2n(GameVars.WORLD_MAXY);
         this.yvel = 0;
     }
     steer() {
         this.movectr++;
-        if (this.movectr > Saucer.MOVE) {
-            this.yvel = Saucer.YVEL;
+        if (this.movectr > GameVars.SAUCER_MOVE) {
+            this.yvel = GameVars.SAUCER_YVEL;
             this.movectr = 0;
             if (GameUtils.odds(50))
                 this.yvel -= this.yvel;
@@ -109,8 +96,8 @@ export class Saucer extends VectorMover {
     fire() {
         this.firectr++;
         if (!this.bullet.isAlive()) {
-            if ((this.size == Saucer.LARGE && this.firectr > Saucer.L_FIRE)
-                || (this.size == Saucer.SMALL && this.firectr > Saucer.S_FIRE)) {
+            if ((this.size == GameVars.SAUCER_LARGE && this.firectr > GameVars.SAUCER_LARGE_FIRE)
+                || (this.size == GameVars.SAUCER_SMALL && this.firectr > GameVars.SAUCER_SMALL_FIRE)) {
                 this.firectr = 0;
                 // Target Ship:  calculate the angle from saucer to ship.
                 // Originate bullet from saucer center.
@@ -131,9 +118,9 @@ export class Saucer extends VectorMover {
     }
     tick() {
         // Is it time to die yet?
-        if (this.dir == Saucer.RIGHT && this.x > GameConstants.WORLD_MAXX - 100)
+        if (this.dir == GameVars.SAUCER_RIGHT && this.x > GameVars.WORLD_MAXX - 100)
             this.die();
-        if (this.dir == Saucer.LEFT && this.x < 100)
+        if (this.dir == GameVars.SAUCER_LEFT && this.x < 100)
             this.die();
         this.steer(); // steer saucer
         this.fire(); // fire a bullet...maybe

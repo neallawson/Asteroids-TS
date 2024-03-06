@@ -48,6 +48,7 @@ export class GameVars {
 	static ROCK_MAX_SPEED = 30;
 	static ROCK_ROT_LEFT = 0;
 	static ROCK_ROT_RIGHT = 1;
+    static ROCK_MAX_ROT = 64;
 	static ROCK_LSCORE = 50;
 	static ROCK_MSCORE = 75;
 	static ROCK_SSCORE = 100;

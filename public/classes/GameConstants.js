@@ -1,13 +1,9 @@
-// # ****************************************************************************
-// #
-// # Const.py -- Constants for the Asteroids game. Game objects need access to
-// #     some of these, so they're consolidated here.
-// #
-// # Written by: Neal Lawson, captainneal@gmail.com
-// # Copyright (c) Neal Lawson, 2022
-// #
-// # ****************************************************************************
-export class GameConstants {
+// Const.py -- Constants for the Asteroids game. Game objects need access to
+//     some of these, so they're consolidated here.
+//
+// Coded by: Neal Lawson, captainneal@gmail.com
+// Copyright (c) Neal Lawson, 1996
+export class GameVars {
     // # The DELAY" in the original game was used as the basis for other calculations. It was 50 (for 50 milliseconds) which
     // # equates to 20 frames per second. To keep those relative timings, etc. as close as possible to the original, multiply
     // # uses of "DELAY" in the code by this (this is the ratio of the cur/old frames-per-second to normalize the DELAY.
@@ -15,15 +11,15 @@ export class GameConstants {
     static DELAY = 17; // # Delay (in milliseconds) between frames.
     static OLD_DELAY = 50; //Delay in the original game, used to create the "fudge" Implies 20 FPS.
     // For tick() timings, multiply old "DELAY" by this fudge.
-    static DELAY_FUDGE = Math.round(GameConstants.FPS / (1000 / GameConstants.OLD_DELAY));
+    static DELAY_FUDGE = Math.round(GameVars.FPS / (1000 / GameVars.OLD_DELAY));
     // Game pieces move in the World coordinate system and are projected into a screen viewport for rendering.
     static WORLD_MINX = 0;
-    static WORLD_MAXX = 20000;
+    static WORLD_MAXX = 18000;
     static WORLD_MINY = 0;
-    static WORLD_MAXY = 20000;
+    static WORLD_MAXY = 18000;
     // These are now determined by the max capability of the device's display (Neal, 4/2023)
     // static SCREEN_WIDTH = 1000;
-    // static SCREEN_HEIGHT = Math.trunc(GameConstants.SCREEN_WIDTH * 0.8);
+    // static SCREEN_HEIGHT = Math.trunc(GameVars.SCREEN_WIDTH * 0.8);
     // Allocated array sizes for holding the various game objects
     static MAX_BULLETS = 10; // allocated size of gc_bullets[]
     static MAX_ROCKS = 50; // allocated size of gc_rocks[]

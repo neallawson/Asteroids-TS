@@ -1,18 +1,8 @@
 import { Graphics, Point } from "../../node_modules/pixi.js/dist/pixi.mjs";
 // import { Point } from "pixi.js";
 import { Mover } from "./Mover.js";
-//****************************************************************************
-// ----- general information -----
-//
 // Explosion.java -- Ship Explosion
-//
-// Written by:				Neal Lawson, e-mail: nlawson@uga.icad.edu
-// Initbreak
-// ----- history and repairs -----
-//
-// ----- Description -----
 // Explosion is a Mover that is an animated ship explosion.
-//****************************************************************************
 export class Explosion extends Mover {
     static MAX_SIZE = [30, 60, 90, 300];
     static SIZE_INC = [1, 3, 5, 8];
